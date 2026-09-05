@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ShoppingBag, Search, Heart, User, Wallet, Hexagon } from 'lucide-react';
+import { Menu, X, ShoppingBag, Search, Heart, User, Wallet, Hexagon, Store } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from './Logo';
 import { useShop } from '../context/ShopContext';
@@ -125,6 +125,11 @@ export const Navbar = () => {
           <Link to="/customize" className="text-xs font-bold uppercase tracking-widest text-brand-orange hover:text-brand-orange/80">
             Customize Art
           </Link>
+
+          {/* B2B Link */}
+          <Link to="/b2b/buyer" className="text-xs font-bold uppercase tracking-widest text-brand-blue hover:text-brand-blue/80 flex items-center gap-1">
+            <Store size={14} /> B2B Marketplace
+          </Link>
         </div>
       </div>
 
@@ -149,6 +154,7 @@ export const Navbar = () => {
               
               <Link to="/shop" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-ink">Shop Collection</Link>
               <Link to="/nft-marketplace" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-purple">NFT Marketplace</Link>
+              <Link to="/b2b/buyer" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-blue">B2B Marketplace</Link>
               <Link to="/wallet" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-ink">Wallet & KLC</Link>
               <Link to="/customize" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-orange">Customize</Link>
             </div>

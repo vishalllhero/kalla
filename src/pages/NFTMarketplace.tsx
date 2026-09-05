@@ -3,14 +3,26 @@ import { motion } from 'framer-motion';
 import { nfts } from '../data/nfts';
 import { useWeb3 } from '../context/Web3Context';
 import { CoinBadge } from '../components/CoinBadge';
-import { Hexagon, Sparkles, ShoppingCart, ExternalLink } from 'lucide-react';
+import { Hexagon, Sparkles, ExternalLink } from 'lucide-react';
+
+type NFT = {
+  id: string
+  name: string
+  price: number
+  image: string
+  rarity?: string
+  artist?: string
+  description?: string
+  redeemable?: boolean
+  [key: string]: unknown
+}
 
 export const NFTMarketplace = () => {
   const { connectWallet, isConnected, mintNFT, klcBalance } = useWeb3();
   const [filter, setFilter] = useState('All');
   const [mintingId, setMintingId] = useState<string | null>(null);
 
-  const handleMint = async (nft: any) => {
+  const handleMint = async (nft: NFT) => {
     if (!isConnected) {
       await connectWallet();
       return;

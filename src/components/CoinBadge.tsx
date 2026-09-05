@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 export const CoinBadge = ({ size = 'sm' }: { size?: 'sm' | 'md' | 'lg' }) => {
   const dims = size === 'sm' ? 'w-4 h-4' : size === 'md' ? 'w-6 h-6' : 'w-12 h-12';

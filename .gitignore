@@ -1,1 +1,17 @@
 node_modules/
+dist/
+.kilo/
+coverage/
+uploads/
+.env
+.env.*
+!.env.example
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/

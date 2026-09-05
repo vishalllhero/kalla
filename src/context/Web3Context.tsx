@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { NFT, nfts as initialNFTs } from '../data/nfts';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Transaction {
   id: string;

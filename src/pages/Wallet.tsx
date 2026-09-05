@@ -1,7 +1,6 @@
 import React from 'react';
 import { useWeb3 } from '../context/Web3Context';
 import { CoinBadge } from '../components/CoinBadge';
-import { motion } from 'framer-motion';
 import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History, CreditCard } from 'lucide-react';
 
 export const Wallet = () => {

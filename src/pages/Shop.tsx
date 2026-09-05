@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Filter, ChevronDown, Grid, List } from 'lucide-react';
+import { ChevronDown, Grid, List } from 'lucide-react';
 import { products, categories } from '../data/products';
 import { ProductCard } from '../components/ProductCard';
-import { motion } from 'framer-motion';
 
 export const Shop = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
