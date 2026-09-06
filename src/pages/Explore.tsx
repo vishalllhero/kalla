@@ -120,15 +120,21 @@ export default function Explore() {
   return (
     <div className="bg-canvas min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Search & Filters */}
-        <div className="flex flex-col sm:flex-row gap-6 mb-10">
-          <SearchBar />
-          <FilterBar options={filters} onChange={setFilters} />
-          <SortBar options={sort} onChange={setSort} />
-        </div>
-
-        {/* Artwork Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+{/* Search & Filters */}
+         <div className="flex flex-col sm:flex-row gap-6 mb-10">
+           <SearchBar />
+           <FilterBar options={filters} onChange={setFilters} />
+           <SortBar options={sort} onChange={setSort} />
+         </div>
+ 
+         {/* Page Header */}
+         <div className="text-center py-12">
+           <h2 className="text-4xl md:text-5xl font-serif text-ink mb-4">Discover Premium Artisan Creations</h2>
+           <p className="text-xl md:text-2xl text-ink/70 max-w-2xl mx-auto">Explore a curated collection of handcrafted Indian artworks, each with verified authenticity and elegant presentation.</p>
+         </div>
+ 
+         {/* Artwork Grid */}
+         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
             <LoadingSkeleton paragraphs={4} images={8} />
           ) : sortedArtworks.length === 0 ? (

@@ -21,7 +21,7 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed w-full z-50 bg-canvas/95 backdrop-blur-md border-b border-stone-200/50 transition-all duration-300">
+    <nav className="fixed w-full z-50 bg-canvas bg-opacity-95 shadow-sm border-b border-stone-200/50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           
@@ -40,13 +40,13 @@ export const Navbar = () => {
           {/* Desktop Search - Amazon Style */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8">
             <form onSubmit={handleSearch} className="relative w-full group">
-              <input
-                type="text"
-                placeholder="Search art, NFTs, or products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-4 pr-12 py-2.5 rounded-full bg-stone-100 border border-transparent focus:border-brand-blue/50 focus:bg-white focus:ring-2 focus:ring-brand-blue/10 outline-none transition-all font-sans text-sm"
-              />
+<input
+                  type="text"
+                  placeholder="Search art, NFTs, or products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-4 pr-12 py-2.5 rounded-full bg-canvas border border-stone-200/30 focus:border-brand-blue/50 focus:bg-white focus:ring-2 focus:ring-brand-blue/10 focus-visible:outline-none transition-all font-sans text-sm"
+                />
               <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-brand-blue text-white rounded-full hover:bg-brand-blue/90 transition-colors">
                 <Search size={16} />
               </button>
@@ -105,62 +105,64 @@ export const Navbar = () => {
           </div>
         </div>
         
-        {/* Secondary Nav - Categories */}
-        <div className="hidden md:flex justify-center space-x-8 pb-4 border-t border-stone-100 pt-2">
-          {['Shop All', 'New Arrivals', 'Men', 'Women'].map((item) => (
+{/* Secondary Nav - simplified premium categories */}
+        <div className="hidden md:flex justify-center space-x-6 pb-4 border-t border-stone-100/30 pt-2">
+          {['Shop All', 'New Arrivals', 'Artisan', 'B2B'].map((item) => (
             <Link 
               key={item}
               to="/shop" 
-              className="text-xs font-medium uppercase tracking-widest text-ink/70 hover:text-brand-blue transition-colors relative group"
+              className="text-xs font-medium uppercase tracking-widest text-ink/60 hover:text-brand-blue transition-colors relative group"
             >
               {item}
             </Link>
           ))}
-          
-          {/* Web3 Links */}
           <Link to="/nft-marketplace" className="text-xs font-bold uppercase tracking-widest text-brand-purple hover:text-brand-purple/80 flex items-center gap-1">
             <Hexagon size={14} /> NFT Gallery
           </Link>
-          
-          <Link to="/customize" className="text-xs font-bold uppercase tracking-widest text-brand-orange hover:text-brand-orange/80">
-            Customize Art
-          </Link>
-
-          {/* B2B Link */}
           <Link to="/b2b/buyer" className="text-xs font-bold uppercase tracking-widest text-brand-blue hover:text-brand-blue/80 flex items-center gap-1">
             <Store size={14} /> B2B Marketplace
           </Link>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-canvas border-b border-stone-200 overflow-hidden"
-          >
-            <div className="px-4 pt-4 pb-8 space-y-4">
-              <form onSubmit={handleSearch} className="relative w-full mb-6">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full pl-4 pr-10 py-3 rounded-lg bg-stone-100 outline-none"
-                />
-                <Search className="absolute right-3 top-3 text-ink/50" size={20} />
-              </form>
-              
-              <Link to="/shop" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-ink">Shop Collection</Link>
-              <Link to="/nft-marketplace" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-purple">NFT Marketplace</Link>
-              <Link to="/b2b/buyer" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-blue">B2B Marketplace</Link>
-              <Link to="/wallet" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-ink">Wallet & KLC</Link>
-              <Link to="/customize" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-orange">Customize</Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+{/* Mobile Menu */}
+       <AnimatePresence>
+         {isOpen && (
+           <motion.div
+             initial={{ opacity: 0, height: 0 }}
+             animate={{ opacity: 1, height: 'auto' }}
+             exit={{ opacity: 0, height: 0 }}
+             className="md:hidden bg-canvas border-b border-stone-100/30 overflow-hidden"
+           >
+             <div className="px-4 pt-4 pb-8 space-y-4 border-t border-stone-100/30">
+               <form onSubmit={handleSearch} className="relative w-full mb-6">
+                 <input
+                   type="text"
+                   placeholder="Search art, collections..."
+                   className="w-full pl-4 pr-10 py-3 rounded-lg bg-stone-100 outline-none focus:ring-brand-blue/30"
+                 />
+                 <Search className="absolute right-3 top-3 text-ink/50" size={20} />
+               </form>
+               
+               <Link to="/shop" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-ink border-b border-stone-100/30 pb-2">
+                 Shop Collection
+               </Link>
+               <Link to="/nft-marketplace" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-purple border-b border-stone-100/30 pb-2">
+                 NFT Gallery
+               </Link>
+               <Link to="/b2b/buyer" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-blue border-b border-stone-100/30 pb-2">
+                 B2B Marketplace
+               </Link>
+               <Link to="/wallet" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-ink border-b border-stone-100/30 pb-2">
+                 Wallet & KLC
+               </Link>
+               <Link to="/customize" onClick={() => setIsOpen(false)} className="block py-2 text-lg font-serif text-brand-orange border-b border-stone-100/30 pb-2">
+                 Customize
+               </Link>
+             </div>
+           </motion.div>
+         )}
+       </AnimatePresence>
     </nav>
   );
 };

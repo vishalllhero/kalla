@@ -12,18 +12,18 @@ export const Hero = () => {
       
 {/* Animated Blobs */}
        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-         <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-terracotta/30 rounded-full blur-[80px]">
+         <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-terracotta/20 rounded-full blur-[60px]">
            <motion.div 
              animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-             className="absolute top-10 right-10 w-[400px] h-[400px] bg-terracotta/30 rounded-full blur-[80px]"
+             className="absolute top-10 right-10 w-[400px] h-[400px] bg-terracotta/20 rounded-full blur-[60px]"
            />
          </div>
-<div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-muted-gold/30 rounded-full blur-[100px]">
+<div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-muted-gold/15 rounded-full blur-[80px]">
   <motion.div 
     animate={{ y: [0, 30, 0], rotate: [0, -5, 0] }}
     transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-    className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-muted-gold/30 rounded-full blur-[100px]"
+    className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-muted-gold/15 rounded-full blur-[80px]"
   />
 </div>
        </div>
@@ -38,7 +38,7 @@ export const Hero = () => {
             <span className="text-xs font-sans uppercase tracking-[0.2em] text-ink/70">AI-Powered | Verified | Trusted</span>
           </div>
 
-          <h1 className="text-7xl md:text-9xl font-serif font-medium text-ink mb-6 leading-[0.9] tracking-tight">
+          <h1 className="text-8xl md:text-10xl font-serif font-medium text-ink tracking-tight shadow-sm mb-6 leading-[1.05]">
             India's Artisans.<br />
             <span className="relative inline-block text-terracotta">
               Digitally Empowered.
@@ -50,16 +50,16 @@ export const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Link 
-              to="/explore" 
-              className="relative px-10 py-4 bg-terracotta text-white rounded-lg font-medium hover:bg-terracotta/90 transition-colors shadow-sm"
-            >
+<Link 
+                  to="/explore" 
+                  className="relative px-8 py-3 bg-terracotta text-white rounded-lg font-medium hover:bg-terracotta/90 transition-colors shadow-sm"
+                >
               Explore Art
             </Link>
-            <Link 
-              to="/sell" 
-              className="relative px-10 py-4 bg-muted-gold text-ink rounded-lg font-medium hover:bg-muted-gold/90 transition-colors shadow-sm"
-            >
+<Link 
+                  to="/sell" 
+                  className="relative px-8 py-3 bg-muted-gold text-ink rounded-lg font-medium hover:bg-muted-gold/90 transition-colors shadow-sm"
+                >
               Sell Your Craft
             </Link>
           </div>
