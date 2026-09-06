@@ -18,6 +18,10 @@ import { AuthProvider } from './context/AuthContext'
 import { ScrollToTop } from './components/ScrollToTop'
 import { Checkout } from './pages/Checkout'
 import { PurchaseSuccess } from './pages/PurchaseSuccess'
+import VerifiedArtPage from './pages/VerifiedArtPage'
+import ArtisanProfile from './pages/ArtisanProfile'
+import BuyerCollection from './pages/BuyerCollection'
+import Explore from './pages/Explore'
 
 function App() {
   return (
@@ -33,6 +37,8 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/shop" element={<Shop />} />
+                  <Route path="/explore" element={<Explore />} />
+                  <Route path="/sell" element={<Customize />} />
                   <Route path="/product/:id" element={<ProductDetails />} />
                   <Route path="/customize" element={<Customize />} />
                   <Route path="/dashboard" element={<Dashboard />} />

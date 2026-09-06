@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, MapPin, Tag, IndianRupee, User, CheckCircle, XCircle, Clock, Sparkles, ExternalLink } from 'lucide-react'
+import { MapPin, Tag, IndianRupee, User, CheckCircle, XCircle, Clock, Sparkles, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { b2bApi, B2BRequest, B2BRequestCreate } from '../lib/api'
+import { b2bApi, B2BRequest, B2BMatch } from '../lib/api'
 
 export const B2BArtisan = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth()
@@ -46,16 +46,6 @@ export const B2BArtisan = () => {
     setSearchCraft('')
     setSearchRegion('')
     loadData()
-  }
-
-  const handleMatch = async (requestId: string) => {
-    try {
-      const result = await b2bApi.matchArtisans(requestId, 5)
-      alert(`Found ${result.total_matches} matches`)
-      loadData()
-    } catch (error) {
-      console.error('Failed to match artisans:', error)
-    }
   }
 
   if (authLoading || loading) {
@@ -251,10 +241,12 @@ const B2BOpportunityCard = ({ request }: { request: B2BRequest }) => {
 /* B2B Request Card */
 const B2BRequestCard = ({
   request,
-  showMatches,
+  showMatches = true,
+  onAccept,
 }: {
   request: B2BRequest
   showMatches?: boolean
+  onAccept?: (requestId: string, artisanId: string) => void
 }) => {
   const statusColors: Record<string, string> = {
     open: 'bg-green-100 text-green-700',
@@ -279,7 +271,7 @@ const B2BRequestCard = ({
           <h3 className="text-xl font-serif text-ink mb-2">{request.title}</h3>
           <p className="text-stone-600 text-sm mb-3 line-clamp-2">{request.description}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors[request.status] ?? 'bg-stone-100 text-stone-700'}`}>
+        <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
           {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
         </span>
       </div>
@@ -317,7 +309,7 @@ const B2BRequestCard = ({
         )}
       </div>
 
-      {request.matches && request.matches.length > 0 ? (
+      {showMatches && request.matches && request.matches.length > 0 ? (
         <div className="border border-stone-100 rounded-lg p-4 mt-4">
           <h4 className="font-medium text-ink mb-3 flex items-center gap-2">
             <Sparkles size={16} />
@@ -328,20 +320,17 @@ const B2BRequestCard = ({
               <B2BMatchCard
                 key={match.id}
                 match={match}
-                onAccept={() => onAccept(request.id, match.artisan_id)}
+                onAccept={onAccept ? () => onAccept(request.id, match.artisan_id) : undefined}
                 requestStatus={request.status}
               />
             ))}
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => onMatch(request.id)}
-          className="text-sm text-brand-blue font-medium hover:underline flex items-center gap-2"
-        >
-          Find Matches
-          <Sparkles size={14} />
-        </button>
+        <div className="text-sm text-stone-500 flex items-center gap-2">
+          <Sparkles size={14} className="text-brand-blue" />
+          <span>Open for artisan matching</span>
+        </div>
       )}
     </div>
   )
@@ -354,7 +343,7 @@ const B2BMatchCard = ({
   requestStatus,
 }: {
   match: B2BMatch
-  onAccept: () => void
+  onAccept?: () => void
   requestStatus: string
 }) => {
   const canAccept = requestStatus === 'open' && !match.is_accepted && !match.is_rejected
@@ -403,170 +392,6 @@ const B2BMatchCard = ({
               Accept Match
             </button>
           )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* B2B Create Request Modal */
-const B2BCreateModal = ({
-  request,
-  onChange,
-  onClose,
-  onSave,
-}: {
-  request: Partial<B2BRequestCreate>
-  onChange: (req: Partial<B2BRequestCreate>) => void
-  onClose: () => void
-  onSave: () => void
-}) => {
-  const updateField = (field: string, value: unknown) => {
-    onChange({ ...request, [field]: value })
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b">
-          <h2 id="modal-title" className="text-xl font-serif text-ink">Create B2B Procurement Request</h2>
-        </div>
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">Title *</label>
-            <input
-              type="text"
-              value={request.title || ''}
-              onChange={(e) => updateField('title', e.target.value)}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-              placeholder="e.g., Need 100 handcrafted clay pots"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">Description</label>
-            <textarea
-              value={request.description || ''}
-              onChange={(e) => updateField('description', e.target.value)}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-              rows={3}
-              placeholder="Describe your requirements in detail"
-              aria-label="Request description"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Craft</label>
-              <input
-                type="text"
-                value={request.craft || ''}
-                onChange={(e) => updateField('craft', e.target.value)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                placeholder="e.g., Pottery, Textiles"
-                id="craft-field"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Material</label>
-              <input
-                type="text"
-                value={request.material || ''}
-                onChange={(e) => updateField('material', e.target.value)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                placeholder="e.g., Clay, Silk"
-                id="material-field"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Region</label>
-              <input
-                type="text"
-                value={request.region || ''}
-                onChange={(e) => updateField('region', e.target.value)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                placeholder="e.g., Rajasthan"
-                id="region-field"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Quantity *</label>
-              <input
-                type="number"
-                value={request.quantity_required || 1}
-                onChange={(e) => updateField('quantity_required', parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                min="1"
-                id="quantity-field"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Budget Min (₹)</label>
-              <input
-                type="number"
-                value={request.budget_min || ''}
-                onChange={(e) => updateField('budget_min', parseInt(e.target.value) || undefined)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                id="budget-min-field"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Budget Max (₹)</label>
-              <input
-                type="number"
-                value={request.budget_max || ''}
-                onChange={(e) => updateField('budget_max', parseInt(e.target.value) || undefined)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                id="budget-max-field"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Priority</label>
-              <select
-                value={request.priority || 'medium'}
-                onChange={(e) => updateField('priority', e.target.value)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                id="priority-field"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1">Deadline</label>
-              <input
-                type="date"
-                value={request.deadline?.split('T')[0] || ''}
-                onChange={(e) => updateField('deadline', e.target.value || undefined)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-blue/10 outline-none"
-                id="deadline-field"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 border-t bg-stone-50 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-stone-600 hover:text-stone-800"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSave}
-            className="bg-brand-blue text-white px-6 py-2 rounded-lg font-bold hover:bg-brand-blue/90 transition-colors"
-          >
-            Create Request
-          </button>
         </div>
       </div>
     </div>

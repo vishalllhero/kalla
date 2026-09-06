@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { Check, FileText, ShoppingCart } from 'lucide-react'
+import ProvenanceTimeline from '../components/ProvenanceTimeline'
+import { API_BASE_URL } from '../lib/api'
 
 type PurchaseData = {
   order_id: string
@@ -26,7 +28,7 @@ type PurchaseData = {
   message: string
 }
 
-export default function PurchaseSuccess() {
+export function PurchaseSuccess() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
@@ -39,7 +41,7 @@ export default function PurchaseSuccess() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`/api/v1/orders/${id}`)
+        const res = await fetch(`${API_BASE_URL}/api/v1/orders/${id}`)
         if (!res.ok) throw new Error('Purchase not found')
         const data = await res.json()
         setPurchase(data)
@@ -122,7 +124,7 @@ export default function PurchaseSuccess() {
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: 'ease-out' }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
               className="text-6xl font-bold text-terracotta"
             >
               ✓
@@ -225,3 +227,5 @@ export default function PurchaseSuccess() {
     </div>
   )
 }
+
+export default PurchaseSuccess;

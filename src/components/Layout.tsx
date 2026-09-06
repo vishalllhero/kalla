@@ -1,5 +1,6 @@
-import Link from 'next/link'
-import { SunIcon } from '@heroicons/react/24/outline'
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Sun } from 'lucide-react'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,26 +9,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-ink">
+          <Link to="/" className="text-2xl font-bold text-ink">
             KALAA
           </Link>
 
           {/* Nav Links */}
           <nav className="hidden md:flex space-x-6">
-            <Link href="/" className="hover:text-terracotta transition-colors">
+            <Link to="/explore" className="hover:text-terracotta transition-colors">
               Explore
             </Link>
-            <Link href="/artisans" className="hover:text-terracotta transition-colors">
-              Artisans
+            <Link to="/shop" className="hover:text-terracotta transition-colors">
+              Shop
             </Link>
-            <Link href="/b2b" className="hover:text-terracotta transition-colors">
+            <Link to="/b2b/buyer" className="hover:text-terracotta transition-colors">
               B2B
             </Link>
-            <Link href="/verified" className="hover:text-terracotta transition-colors">
+            <Link to="/verified-art" className="hover:text-terracotta transition-colors">
               Verified
             </Link>
-            <Link href="/how-it-works" className="hover:text-terracotta transition-colors">
-              How It Works
+            <Link to="/customize" className="hover:text-terracotta transition-colors">
+              AI Studio
             </Link>
           </nav>
 
@@ -38,10 +39,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               placeholder="Search artworks, artisans..."
               className="border border-stone-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-terracotta"
             />
-            <button className="relative">
-              <SunIcon className="h-5 w-5 text-terracotta" />
+            <button className="relative" aria-label="Toggle theme">
+              <Sun className="h-5 w-5 text-terracotta" />
             </button>
-            <Link href="/profile" className="text-terracotta hover:text-terracotta/80 transition-colors">
+            <Link to="/dashboard" className="text-terracotta hover:text-terracotta/80 transition-colors">
               Profile
             </Link>
           </div>

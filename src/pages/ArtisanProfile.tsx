@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import ArtworkCard from '../components/ArtworkCard'
 import VerifiedBadge from '../components/VerifiedBadge'
+import { API_BASE_URL } from '../lib/api'
 
 type ArtisanProfileProps = {
   artisan: {
@@ -26,6 +27,8 @@ type ArtisanProfileProps = {
     price: number
     image_url: string
     verified: boolean
+    craft?: string
+    region?: string
   }>
 }
 
@@ -42,7 +45,7 @@ export default function ArtisanProfile() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`/api/v1/artisans/${id}`)
+        const res = await fetch(`${API_BASE_URL}/api/v1/artisans/${id}`)
         if (!res.ok) throw new Error('Artisan not found')
         const data = await res.json()
         setArtisan(data.artisan)
@@ -148,7 +151,14 @@ export default function ArtisanProfile() {
             </div>
           ) : (
             artworks.map((art) => (
-              <ArtworkCard key={art.artwork_id} artwork={art} />
+              <ArtworkCard
+                key={art.artwork_id}
+                artwork={{
+                  ...art,
+                  craft: art.craft || artisan?.craft || 'Handmade Art',
+                  region: art.region || artisan?.region || 'India',
+                }}
+              />
             ))
           )}
         </div>

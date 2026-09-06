@@ -7,7 +7,10 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({ className = "" }) => {
   // Unique ID for filters to avoid conflicts
-  const id = React.useId();
+  const rawId = React.useId();
+  const id = rawId.replace(/:/g, '');
+  const filterTexture = `filter-texture-${id}`;
+  const filterRough = `filter-rough-${id}`;
 
   return (
     <div className={`relative inline-block ${className}`}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 
 type ArtworkCardProps = {
   artwork: {
@@ -18,16 +18,14 @@ export default function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [isFavorite, setIsFavorite] = useState(false)
 
   return (
-    <Link href={`/product/${artwork.artwork_id}`} className="group">
+    <Link to={`/product/${artwork.artwork_id}`} className="group block">
       <div className="relative group-hover/translate-y-0.5 transition-transform duration-200">
         <div className="relative group-hover/translate-y-0.5">
-          <Image
-            src={artwork.image_url}
+<img
+            src={artwork.image_url ?? artwork.image}
             alt={artwork.title}
-            width={400}
-            height={400}
             className="rounded-lg shadow-sm overflow-hidden object-cover w-full h-64"
-          />
+        />
         </div>
       </div>
 
@@ -58,7 +56,12 @@ export default function ArtworkCard({ artwork }: ArtworkCardProps) {
 
         {/* Favorite button */}
         <button
-          onClick={() => setIsFavorite(!isFavorite)}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setIsFavorite(!isFavorite)
+          }}
           className="mt-3 flex items-center gap-2 text-stone-500 hover:text-terracotta focus:ring-terracotta focus:outline-none transition-colors"
           aria-label={`Add ${artwork.title} to wishlist`}
         >

@@ -3,7 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useWeb3 } from '../context/Web3Context'
 import VerifiedBadge from '../components/VerifiedBadge'
-import { Heart, Share2, Wallet, Truck, Shield, ArrowLeft } from 'lucide-react'
+import DigitalIdentityPanel from '../components/DigitalIdentityPanel'
+import ProvenanceTimeline from '../components/ProvenanceTimeline'
+import { Heart, Share2, Wallet, Truck, RotateCcw, Shield, ArrowLeft } from 'lucide-react'
+import { API_BASE_URL } from '../lib/api'
 
 type ArtworkDetails = {
   artwork_id: string
@@ -23,7 +26,7 @@ type ArtworkDetails = {
   sold_at: string | null
 }
 
-export default function ProductDetails() {
+export function ProductDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { isConnected, connectWallet, exchangeRate } = useWeb3()
@@ -37,7 +40,7 @@ export default function ProductDetails() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`/api/v1/artworks/${id}`)
+        const res = await fetch(`${API_BASE_URL}/api/v1/artworks/${id}`)
         if (!res.ok) {
           throw new Error('Artwork not found')
         }
@@ -67,7 +70,7 @@ export default function ProductDetails() {
 
   if (error) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-8 text-center min-h-screen pt-32">
         <h2 className="text-2xl font-semibold text-ink mb-4">Error</h2>
         <p className="text-stone-400">{error}</p>
         <button
@@ -144,27 +147,31 @@ export default function ProductDetails() {
             >
               BUY NOW
             </Link>
-            <button
-              onClick={() => {
-                // toggle wishlist
-                // implementation left as placeholder
-              }}
-              className="flex items-center gap-2 px-6 py-3 bg-white border border-stone-200 rounded-sm hover:bg-stone-50 transition-colors"
-              aria-label={`Add ${artwork.title} to wishlist`}
-            >
-              <Heart size={20} className="text-stone-500" />
-              ADD TO WISHLIST
-            </button>
-            <button
-              onClick={() => {
-                // Share functionality
-              }}
-              className="flex items-center gap-2 px-6 py-3 bg-white border border-stone-200 rounded-sm hover:bg-stone-50 transition-colors"
-              aria-label={`Share ${artwork.title}`}
-            >
-              <Share2 size={20} />
-              SHARE
-            </button>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  alert('Saved to wishlist!')
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
+                aria-label={`Add ${artwork.title} to wishlist`}
+              >
+                <Heart size={18} />
+                <span>Wishlist</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href)
+                  alert('Artwork link copied to clipboard!')
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
+                aria-label={`Share ${artwork.title}`}
+              >
+                <Share2 size={18} />
+                <span>Share</span>
+              </button>
+            </div>
             <button
               onClick={() => {
                 if (isConnected) {
@@ -173,7 +180,7 @@ export default function ProductDetails() {
                   connectWallet()
                 }
               }}
-              className="w-full py-3 bg-brand-purple/10 border border-brand-purple/30 text-brand-purple rounded-sm font-bold hover:bg-brand-purple hover:text-white transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 bg-brand-purple/10 border border-brand-purple/30 text-brand-purple rounded-lg font-bold hover:bg-brand-purple hover:text-white transition-all flex items-center justify-center gap-2"
               aria-label={`Connect wallet to pay with KLC (${klcPrice} KLC)`}
             >
               <Wallet size={18} />
@@ -183,24 +190,28 @@ export default function ProductDetails() {
         </div>
 
         {/* Features */}
-        <div className="grid grid-cols-3 gap-4 py-6 border-t border-b border-stone-100 mb-8">
-          <div className="flex flex-col items-center text-center">
-            <Truck className="text-brand-blue" size={24} />
+        <div className="grid grid-cols-3 gap-4 py-6 border-t border-b border-stone-100 my-8">
+          <div className="flex flex-col items-center text-center gap-2">
+            <div className="text-brand-blue">
+              <Truck size={24} />
+            </div>
             <span className="text-xs font-medium">Free Shipping</span>
           </div>
           <div className="flex flex-col items-center text-center gap-2">
-            <Shield className="text-brand-purple" size={24} />
-            <span className="text-xs font-medium">Authentic Art</span>
+            <motion.div
+              className="text-brand-purple"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+            >
+              <RotateCcw size={24} />
+            </motion.div>
+            <span className="text-xs font-medium">7 Day Returns</span>
           </div>
           <div className="flex flex-col items-center text-center gap-2">
-            <motion.div
-              className="text-brand-orange"
-              size={24}
-              initial={{ rotate: 0 }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1 }}
-            />
-            <span className="text-xs font-medium">7 Day Returns</span>
+            <div className="text-brand-blue">
+              <Shield size={24} />
+            </div>
+            <span className="text-xs font-medium">100% Authentic Handcrafted</span>
           </div>
         </div>
 
@@ -210,7 +221,7 @@ export default function ProductDetails() {
             onClick={() => setActiveTab('description')}
             className={`pb-2 text-sm font-bold uppercase tracking-widest transition-colors relative ${
               activeTab === 'description'
-                ? 'text-brand-blue'
+                ? 'text-brand-blue border-b-2 border-brand-blue'
                 : 'text-stone-400 hover:text-ink'
             }`}
           >
@@ -220,7 +231,7 @@ export default function ProductDetails() {
             onClick={() => setActiveTab('artistNote')}
             className={`pb-2 text-sm font-bold uppercase tracking-widest transition-colors relative ${
               activeTab === 'artistNote'
-                ? 'text-brand-blue'
+                ? 'text-brand-blue border-b-2 border-brand-blue'
                 : 'text-stone-400 hover:text-ink'
             }`}
           >
@@ -230,19 +241,59 @@ export default function ProductDetails() {
             onClick={() => setActiveTab('reviews')}
             className={`pb-2 text-sm font-bold uppercase tracking-widest transition-colors relative ${
               activeTab === 'reviews'
-                ? 'text-brand-blue'
+                ? 'text-brand-blue border-b-2 border-brand-blue'
                 : 'text-stone-400 hover:text-ink'
             }`}
           >
-            Reviews
+            Provenance & Verification
           </button>
         </div>
 
         {/* Content Tabs */}
-        <div className="prose prose-stone">
-          <p className="text-ink/70 leading-relaxed">{artwork.description || "Experience the luxury of handpainted art. Each piece is unique, crafted with passion and precision by our master artisans."}</p>
+        <div className="prose prose-stone max-w-none">
+          {activeTab === 'description' && (
+            <p className="text-ink/70 leading-relaxed text-base">
+              {artwork.description || "Experience the luxury of handpainted art. Each piece is unique, crafted with passion and precision by our master artisans."}
+            </p>
+          )}
+          {activeTab === 'artistNote' && (
+            <p className="text-ink/70 leading-relaxed text-base">
+              Handcrafted in {artwork.region} using traditional {artwork.craft} techniques passed down through generations. Certified authentic under the KALAA Artisan Assurance Program.
+            </p>
+          )}
+          {activeTab === 'reviews' && (
+            <div className="space-y-6 not-prose">
+              <DigitalIdentityPanel
+                artworkId={artwork.artwork_id}
+                certificateId={artwork.certificate_id || 'CERT-DEMO-001'}
+                network={artwork.blockchain_status || 'KALAA Demo Blockchain'}
+                status="Verified on Testnet"
+                transactionHash={artwork.blockchain_tx_hash || '0x4f8a...9c2d'}
+              />
+              <ProvenanceTimeline
+                events={[
+                  {
+                    type: 'creation',
+                    title: 'Crafted by Artisan',
+                    description: `Handcrafted in ${artwork.region} with certified heritage materials`,
+                    date: artwork.created_at || new Date().toISOString(),
+                  },
+                  {
+                    type: 'verification',
+                    title: 'KALAA Verification & Digital Identity',
+                    description: 'Physical artwork inspected and certificate registered on demo ledger',
+                    date: artwork.listed_at || new Date().toISOString(),
+                    isOnChain: true,
+                  },
+                ]}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
 }
+
+
+export default ProductDetails;

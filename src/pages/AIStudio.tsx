@@ -58,8 +58,9 @@ export default function AIStudio() {
   }, [user])
 
   useEffect(() => {
-    if (user?.profile?.region) {
-      setState(prev => ({ ...prev, region: user.profile.region }))
+    const userWithProfile = user as unknown as { profile?: { region?: string } }
+    if (userWithProfile?.profile?.region) {
+      setState(prev => ({ ...prev, region: userWithProfile.profile?.region || '' }))
     }
   }, [user])
 

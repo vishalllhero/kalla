@@ -51,13 +51,13 @@ export const Hero = () => {
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link 
-              href="/explore" 
+              to="/explore" 
               className="relative px-10 py-4 bg-terracotta text-white rounded-lg font-medium hover:bg-terracotta/90 transition-colors shadow-sm"
             >
               Explore Art
             </Link>
             <Link 
-              href="/sell" 
+              to="/sell" 
               className="relative px-10 py-4 bg-muted-gold text-ink rounded-lg font-medium hover:bg-muted-gold/90 transition-colors shadow-sm"
             >
               Sell Your Craft

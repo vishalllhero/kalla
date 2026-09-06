@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, MapPin, Tag, IndianRupee, User, CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { b2bApi, B2BRequest, B2BRequestCreate } from '../lib/api'
+import { b2bApi, B2BRequest, B2BRequestCreate, B2BMatch } from '../lib/api'
 
 export const B2BBuyer = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth()

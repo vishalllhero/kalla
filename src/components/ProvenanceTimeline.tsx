@@ -1,4 +1,4 @@
-import { FaCalendarAlt } from 'react-icons/fa'
+import { Calendar } from 'lucide-react'
 
 type ProvenanceEvent = {
   type: string
@@ -23,7 +23,7 @@ export default function ProvenanceTimeline({ events }: ProvenanceTimelineProps) 
           <div key={index} className="flex items-start">
             {/* Event Icon */}
             <div className="w-10 h-10 flex items-center justify-center rounded-full bg-stone-100">
-              <FaCalendarAlt className="text-terracotta" />
+              <Calendar className="text-terracotta" size={18} />
             </div>
             <div className="ml-4">
               <p className="text-xs text-stone-500 font-medium">{new Date(event.date).toLocaleDateString()}</p>
