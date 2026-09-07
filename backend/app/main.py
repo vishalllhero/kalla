@@ -56,9 +56,8 @@ from .api import api_router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 import sys
-backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.makedirs(os.path.join(backend_dir, "uploads"), exist_ok=True)
-_static_dir = os.path.join(backend_dir, "uploads")
+_static_dir = settings.LOCAL_STORAGE_PATH
+os.makedirs(_static_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=_static_dir), name="uploads")
 
 

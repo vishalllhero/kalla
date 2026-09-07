@@ -52,7 +52,9 @@ class Settings(BaseSettings):
     API_PORT: int = _env_int("API_PORT", 8000)
 
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./kalaamvp.db")
+    DATABASE_URL: str = os.getenv("DATABASE_URL") or (
+        "sqlite:////tmp/kalaamvp.db" if os.getenv("VERCEL") else "sqlite:///./kalaamvp.db"
+    )
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "kalaadev")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "kalaa_secure_password")
@@ -88,7 +90,8 @@ class Settings(BaseSettings):
 
     # Storage
     STORAGE_PROVIDER: str = os.getenv("STORAGE_PROVIDER", "local")
-    LOCAL_STORAGE_PATH: str = os.getenv("LOCAL_STORAGE_PATH", "uploads")
+    # Vercel's deployment filesystem is read-only; /tmp is writable but ephemeral.
+    LOCAL_STORAGE_PATH: str = os.getenv("LOCAL_STORAGE_PATH") or "uploads"
     IPFS_GATEWAY: str = os.getenv("IPFS_GATEWAY", "https://ipfs.io")
 
     # Security
@@ -122,3 +125,10 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+if os.getenv("VERCEL"):
+    # Vercel's deployment filesystem is read-only; /tmp is writable but ephemeral.
+    settings.LOCAL_STORAGE_PATH = "/tmp/uploads"
+    if not settings.DATABASE_URL.strip():
+        settings.DATABASE_URL = "sqlite:////tmp/kalaamvp.db"
+elif not settings.LOCAL_STORAGE_PATH.strip():
+    settings.LOCAL_STORAGE_PATH = "uploads"
