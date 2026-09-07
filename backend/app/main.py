@@ -33,9 +33,9 @@ app = FastAPI(
     description="AI-powered marketplace for Indian artisans and handmade physical artworks.",
     version=settings.APP_VERSION,
     lifespan=lifespan,
-    docs_url=f"{settings.API_V1_STR}/docs",
-    redoc_url=f"{settings.API_V1_STR}/redoc",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 _configured_origins = [origin.strip().rstrip("/") for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
