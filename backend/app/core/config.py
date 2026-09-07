@@ -2,6 +2,34 @@ import os
 import uuid as _uuid
 from typing import Optional
 
+
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_int(name: str, default: int) -> int:
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    return int(value)
+
+
+def _env_optional_int(name: str) -> Optional[int]:
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return None
+    return int(value)
+
+
+def _env_float(name: str, default: float) -> float:
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    return float(value)
+
 try:
     from pydantic_settings import BaseSettings, SettingsConfigDict
 except ImportError:
@@ -16,12 +44,12 @@ class Settings(BaseSettings):
     APP_NAME: str = "KALAA"
     APP_VERSION: str = "1.0.0"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
+    DEBUG: bool = _env_bool("DEBUG", True)
 
     # API
     API_V1_STR: str = "/api/v1"
     API_HOST: str = os.getenv("API_HOST", "0.0.0.0")
-    API_PORT: int = int(os.getenv("API_PORT", "8000"))
+    API_PORT: int = _env_int("API_PORT", 8000)
 
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./kalaamvp.db")
@@ -33,13 +61,13 @@ class Settings(BaseSettings):
     # JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
-    REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = _env_int("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
+    REFRESH_TOKEN_EXPIRE_DAYS: int = _env_int("REFRESH_TOKEN_EXPIRE_DAYS", 7)
 
     # Platform Fee
-    PLATFORM_FEE_PERCENT: float = float(os.getenv("PLATFORM_FEE_PERCENT", "5.0"))
-    B2B_FEE_PERCENT: float = float(os.getenv("B2B_FEE_PERCENT", "3.0"))
-    SECONDARY_SALE_FEE_PERCENT: float = float(os.getenv("SECONDARY_SALE_FEE_PERCENT", "2.0"))
+    PLATFORM_FEE_PERCENT: float = _env_float("PLATFORM_FEE_PERCENT", 5.0)
+    B2B_FEE_PERCENT: float = _env_float("B2B_FEE_PERCENT", 3.0)
+    SECONDARY_SALE_FEE_PERCENT: float = _env_float("SECONDARY_SALE_FEE_PERCENT", 2.0)
 
     # AI Services (mock by default)
     AI_PROVIDER: str = os.getenv("AI_PROVIDER", "mock")
@@ -51,11 +79,12 @@ class Settings(BaseSettings):
 
     # Blockchain
     BLOCKCHAIN_PROVIDER: str = os.getenv("BLOCKCHAIN_PROVIDER", "mock")
-    BLOCKCHAIN_NETWORK: str = os.getenv("BLOCKCHAIN_NETWORK", "KALAA Testnet (Mock)")
+    BLOCKCHAIN_NETWORK: str = os.getenv("BLOCKCHAIN_NETWORK", "solana") or "solana"
     RPC_URL: str = os.getenv("RPC_URL", "http://localhost:8545")
     PRIVATE_KEY: str = os.getenv("PRIVATE_KEY", "")
     CONTRACT_ADDRESS: str = os.getenv("CONTRACT_ADDRESS", "")
-    CHAIN_ID: int = int(os.getenv("CHAIN_ID", "1337"))
+    # Retained for older deployments; Solana does not use an Ethereum chain ID.
+    CHAIN_ID: Optional[int] = _env_optional_int("CHAIN_ID")
 
     # Storage
     STORAGE_PROVIDER: str = os.getenv("STORAGE_PROVIDER", "local")
@@ -63,9 +92,9 @@ class Settings(BaseSettings):
     IPFS_GATEWAY: str = os.getenv("IPFS_GATEWAY", "https://ipfs.io")
 
     # Security
-    MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE", str(5 * 1024 * 1024)))
+    MAX_UPLOAD_SIZE: int = _env_int("MAX_UPLOAD_SIZE", 5 * 1024 * 1024)
     ALLOWED_IMAGE_TYPES: set = {"image/jpeg", "image/png", "image/webp", "image/gif"}
-    RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "60"))
+    RATE_LIMIT_PER_MINUTE: int = _env_int("RATE_LIMIT_PER_MINUTE", 60)
 
     # Frontend
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
