@@ -23,6 +23,8 @@ import BuyerCollection from './pages/BuyerCollection'
 import Explore from './pages/Explore'
 import { PremiumHome } from './pages/PremiumHome'
 import Provenance from './pages/Provenance'
+import AdminLogin from './pages/AdminLogin'
+import AdminPanel from './pages/AdminPanel'
 
 function App() {
   return (
@@ -56,6 +58,15 @@ function App() {
                   <Route path="/provenance/:id" element={<Provenance />} />
                   <Route path="/nft-marketplace" element={<NFTMarketplace />} />
                   <Route path="/wallet" element={<Wallet />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route path="/admin" element={<AdminPanel />} />
+                  <Route path="/admin/products" element={<AdminPanel />} />
+                  <Route path="/admin/products/new" element={<AdminPanel />} />
+                  <Route path="/admin/products/:id/edit" element={<AdminPanel />} />
+                  <Route path="/admin/orders" element={<AdminPanel />} />
+                  <Route path="/admin/artisans" element={<AdminPanel />} />
+                  <Route path="/admin/inventory" element={<AdminPanel />} />
+                  <Route path="/admin/settings" element={<AdminPanel />} />
                 </Routes>
               </main>
               <Footer />

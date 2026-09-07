@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
+import os
 from ...core.database import get_db
 from ...core.config import settings
 from ...utils import generate_artwork_id, calculate_platform_fee
@@ -260,11 +261,22 @@ async def upload_artwork_image(
     """Upload an image for an artwork."""
     artwork = _get_artwork_or_404(db, artwork_id)
 
+    if file.content_type not in settings.ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Unsupported image type")
+    if not file.filename or not os.path.splitext(file.filename)[1]:
+        raise HTTPException(status_code=400, detail="Image filename is required")
+
     if current_user.role.name != "admin" and artwork.artisan_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
 
     storage = LocalStorageService()
     file_info = storage.save_upload_file(file, subdir="artworks")
+    if file_info["size"] > settings.MAX_UPLOAD_SIZE:
+        try:
+            os.remove(file_info["filepath"])
+        except OSError:
+            pass
+        raise HTTPException(status_code=413, detail="Image is too large")
 
     is_primary = False
     if not artwork.images:

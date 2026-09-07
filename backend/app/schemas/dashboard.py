@@ -72,6 +72,7 @@ class AdminDashboardMetrics(BaseModel):
     total_artworks: int
     verified_artworks: int
     total_sales: int
+    total_orders: int = 0
     platform_revenue: int
     pending_verification: int
     pending_orders: int

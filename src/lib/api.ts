@@ -59,6 +59,48 @@ export const getUser = () => {
   return userStr ? JSON.parse(userStr) : null;
 };
 
+export interface AdminProduct {
+  id: string;
+  name: string;
+  price: number;
+  category?: string;
+  category_id?: number;
+  description?: string;
+  image?: string;
+  tags: string[];
+  colors: string[];
+  sizes: string[];
+  stock: number;
+  featured: boolean;
+  best_seller: boolean;
+  artisan?: string;
+  artisan_id: string;
+  status: string;
+  created_at?: string;
+}
+
+export const adminApi = {
+  dashboard: async () => (await api.get('/dashboard/admin')).data,
+  products: async (params?: Record<string, string | number>) =>
+    (await api.get<AdminProduct[]>('/admin/products', { params })).data,
+  product: async (id: string) => (await api.get<AdminProduct>(`/admin/products/${id}`)).data,
+  createProduct: async (data: Omit<AdminProduct, 'id' | 'created_at' | 'category' | 'artisan'>) =>
+    (await api.post<AdminProduct>('/admin/products', data)).data,
+  updateProduct: async (id: string, data: Partial<AdminProduct>) =>
+    (await api.put<AdminProduct>(`/admin/products/${id}`, data)).data,
+  archiveProduct: async (id: string) => api.delete(`/admin/products/${id}`),
+  uploadProductImage: async (id: string, file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return (await api.post(`/artworks/${id}/upload-image`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })).data;
+  },
+  orders: async () => (await api.get('/admin/orders')).data,
+  artisans: async () => (await api.get('/admin/artisans')).data,
+  categories: async () => (await api.get('/admin/categories')).data,
+};
+
 // B2B API
 export interface B2BRequest {
   id: string;

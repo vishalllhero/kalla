@@ -68,6 +68,7 @@ async def artisan_dashboard(
 
     metrics = ArtisanDashboardMetrics(
         total_sales=total_sales,
+        total_orders=db.query(Order).count(),
         total_earnings=total_earnings,
         active_listings=active_listings,
         pending_orders=pending_orders,

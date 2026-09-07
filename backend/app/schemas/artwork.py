@@ -93,6 +93,40 @@ class ArtworkUpdate(BaseModel):
     model_config = {"extra": "ignore"}
 
 
+class AdminProductBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    price: int = Field(..., ge=0)
+    category_id: Optional[int] = None
+    description: Optional[str] = None
+    tags: List[str] = []
+    colors: List[str] = []
+    sizes: List[str] = []
+    stock: int = Field(0, ge=0)
+    featured: bool = False
+    best_seller: bool = False
+    artisan_id: str
+    status: str = "draft"
+
+
+class AdminProductCreate(AdminProductBase):
+    pass
+
+
+class AdminProductUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+    price: Optional[int] = Field(None, ge=0)
+    category_id: Optional[int] = None
+    description: Optional[str] = None
+    tags: Optional[List[str]] = None
+    colors: Optional[List[str]] = None
+    sizes: Optional[List[str]] = None
+    stock: Optional[int] = Field(None, ge=0)
+    featured: Optional[bool] = None
+    best_seller: Optional[bool] = None
+    artisan_id: Optional[str] = None
+    status: Optional[str] = None
+
+
 class ArtworkRead(ArtworkBase):
     id: str
     artwork_id: str

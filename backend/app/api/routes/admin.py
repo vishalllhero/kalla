@@ -5,22 +5,213 @@ from datetime import datetime
 
 from ...core.database import get_db
 from ...core.config import settings
-from ...utils import calculate_platform_fee
+from ...utils import calculate_platform_fee, generate_artwork_id
 from ...models.user import User, ArtisanProfile, BuyerProfile
-from ...models.artwork import Artwork, Category
+from ...models.artwork import Artwork, ArtworkAttribute, Category
 from ...models.order import Order, OrderItem, PlatformFee
 from ...models.certificate import Certificate
 from ...models.b2b_ai import B2BRequest
 from ...models.notification import Notification
 from ...schemas.auth import UserRead
 from ...schemas.user import ArtisanProfileRead, BuyerProfileRead, ArtisanProfileCreate, BuyerProfileCreate
-from ...schemas.artwork import ArtworkRead
+from ...schemas.artwork import ArtworkRead, AdminProductCreate, AdminProductUpdate
 from ...schemas.category import CategoryRead, CategoryCreate, CategoryUpdate
 from ...schemas.dashboard import AdminDashboardMetrics, AdminDashboardResponse
 from ..deps import get_current_active_user, get_admin
 from ...services.notifications import send_notification_sync
 
 router = APIRouter()
+
+
+def _product_payload(db: Session, artwork: Artwork) -> dict:
+    category = db.get(Category, artwork.category_id) if artwork.category_id else None
+    attributes = {
+        item.attribute_name: item.attribute_value.split("|")
+        for item in artwork.attributes
+        if item.attribute_name in {"colors", "sizes", "stock"}
+    }
+    tags = [tag.strip() for tag in (artwork.tags or "").split(",") if tag.strip()]
+    return {
+        "id": str(artwork.artwork_id),
+        "name": artwork.title,
+        "price": artwork.price or 0,
+        "category": category.name if category else None,
+        "category_id": artwork.category_id,
+        "description": artwork.description,
+        "image": next((image.url for image in artwork.images if image.is_primary), None),
+        "tags": tags,
+        "colors": attributes.get("colors", []),
+        "sizes": attributes.get("sizes", []),
+        "stock": int(attributes.get("stock", ["0"])[0] or 0),
+        "featured": artwork.status == "featured",
+        "best_seller": artwork.favorite_count > 0,
+        "artisan": (
+            artwork.artisan.display_name or artwork.artisan.full_name or artwork.artisan.email
+            if artwork.artisan else None
+        ),
+        "artisan_id": str(artwork.artisan_id),
+        "status": artwork.status,
+        "created_at": artwork.created_at.isoformat() if artwork.created_at else None,
+    }
+
+
+def _save_product_attributes(db: Session, artwork: Artwork, payload: dict) -> None:
+    artwork.tags = ",".join(payload.get("tags") or [])
+    existing = {attribute.attribute_name: attribute for attribute in artwork.attributes}
+    for name in ("colors", "sizes", "stock"):
+        if name not in payload:
+            continue
+        if name == "stock":
+            values = str(payload.get("stock", 0))
+        else:
+            values = "|".join(payload.get(name) or [])
+        attribute = existing.get(name)
+        if values:
+            if attribute:
+                attribute.attribute_value = values
+            else:
+                artwork.attributes.append(
+                    ArtworkAttribute(attribute_name=name, attribute_value=values)
+                )
+        elif attribute:
+            db.delete(attribute)
+
+
+@router.get("/products")
+async def list_admin_products(
+    search: str = "",
+    category_id: int = None,
+    status_filter: str = None,
+    skip: int = 0,
+    limit: int = 50,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Artwork).order_by(Artwork.created_at.desc())
+    if search:
+        term = f"%{search}%"
+        query = query.filter((Artwork.title.ilike(term)) | (Artwork.description.ilike(term)))
+    if category_id is not None:
+        query = query.filter(Artwork.category_id == category_id)
+    if status_filter:
+        query = query.filter(Artwork.status == status_filter)
+    products = query.offset(skip).limit(min(limit, 100)).all()
+    return [_product_payload(db, product) for product in products]
+
+
+@router.post("/products", status_code=status.HTTP_201_CREATED)
+async def create_admin_product(
+    product: AdminProductCreate,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    artisan = db.get(User, product.artisan_id)
+    if not artisan or not artisan.artisan_profile:
+        raise HTTPException(status_code=400, detail="A valid artisan is required")
+    artwork = Artwork(
+        artwork_id=generate_artwork_id(),
+        title=product.name,
+        price=product.price,
+        description=product.description,
+        category_id=product.category_id,
+        artisan_id=artisan.id,
+        is_listed=product.status in {"listed", "verified", "featured"},
+        is_verified=product.status in {"verified", "featured"},
+        status=product.status,
+    )
+    db.add(artwork)
+    db.flush()
+    _save_product_attributes(db, artwork, product.model_dump())
+    db.commit()
+    db.refresh(artwork)
+    return _product_payload(db, artwork)
+
+
+@router.get("/products/{product_id}")
+async def get_admin_product(
+    product_id: str,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    return _product_payload(db, _get_artwork_or_404(db, product_id))
+
+
+@router.put("/products/{product_id}")
+async def update_admin_product(
+    product_id: str,
+    product: AdminProductUpdate,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    artwork = _get_artwork_or_404(db, product_id)
+    data = product.model_dump(exclude_unset=True)
+    if "artisan_id" in data:
+        artisan = db.get(User, data["artisan_id"])
+        if not artisan or not artisan.artisan_profile:
+            raise HTTPException(status_code=400, detail="A valid artisan is required")
+        artwork.artisan_id = artisan.id
+    field_map = {"name": "title"}
+    for key in ("name", "price", "category_id", "description"):
+        if key in data:
+            setattr(artwork, field_map.get(key, key), data[key])
+    if "best_seller" in data:
+        artwork.favorite_count = max(1, artwork.favorite_count) if data["best_seller"] else 0
+    if "featured" in data:
+        artwork.status = "featured" if data["featured"] else (data.get("status") or artwork.status)
+    if "status" in data:
+        artwork.status = data["status"]
+        artwork.is_listed = data["status"] in {"listed", "verified", "featured"}
+        artwork.is_verified = data["status"] in {"verified", "featured"}
+    _save_product_attributes(db, artwork, data)
+    db.commit()
+    db.refresh(artwork)
+    return _product_payload(db, artwork)
+
+
+@router.delete("/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def archive_admin_product(
+    product_id: str,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    artwork = _get_artwork_or_404(db, product_id)
+    artwork.status = "archived"
+    artwork.is_listed = False
+    db.commit()
+
+
+@router.get("/orders")
+async def list_admin_orders(
+    skip: int = 0,
+    limit: int = 50,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    orders = db.query(Order).order_by(Order.created_at.desc()).offset(skip).limit(min(limit, 100)).all()
+    return [{
+        "id": str(order.id),
+        "order_number": order.order_number,
+        "total_amount": order.total_amount,
+        "status": order.status,
+        "payment_status": order.payment_status,
+        "created_at": order.created_at.isoformat(),
+    } for order in orders]
+
+
+@router.get("/artisans")
+async def list_admin_artisans(
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    artisans = db.query(ArtisanProfile).join(User).order_by(ArtisanProfile.created_at.desc()).all()
+    return [{
+        "id": str(profile.user_id),
+        "name": profile.artisan_name or profile.user.display_name or profile.user.email,
+        "email": profile.user.email,
+        "status": profile.verification_status,
+        "total_listings": profile.total_listings,
+        "total_sales": profile.total_sales,
+    } for profile in artisans]
 
 
 @router.get("/users", response_model=List[UserRead])
