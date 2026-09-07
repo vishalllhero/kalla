@@ -1,155 +1,22 @@
-import { useState, useEffect } from 'react'
-import ArtworkCard from '../components/ArtworkCard'
-import SearchBar from '../components/SearchBar' 
-import FilterBar from '../components/FilterBar'
-import SortBar from '../components/SortBar'
-import LoadingSkeleton from '../components/LoadingSkeleton'
-import EmptyState from '../components/EmptyState'
+import { useEffect, useState } from 'react'
+import { ArrowUpRight, Check, Search, SlidersHorizontal } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
-type FilterOptions = {
-  craft: string
-  region: string
-  material: string
-  minPrice: number
-  maxPrice: number
-  availability: string
-  verified: boolean
-  creationYear: number
-}
-
-type SortOption = 'featured' | 'newest' | 'priceLow' | 'priceHigh' | 'popular'
-
-type Artwork = {
-  craft: string
-  region: string
-  material: string
-  price: number
-  is_available: string
-  verified: boolean
-  creationYear: number
-  viewCount: number
-  [key: string]: unknown
-}
+type Artwork = { artwork_id: string; title: string; craft: string; region: string; material: string; price: number; is_available: string; verified?: boolean; is_verified?: boolean; creationYear?: number; creation_year?: number; viewCount?: number; view_count?: number; image_url?: string }
 
 export default function Explore() {
   const [artworks, setArtworks] = useState<Artwork[]>([])
+  const [query, setQuery] = useState('')
+  const [craft, setCraft] = useState('')
+  const [sort, setSort] = useState('featured')
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [filters, setFilters] = useState<FilterOptions>({
-    craft: '',
-    region: '',
-    material: '',
-    minPrice: 0,
-    maxPrice: 100000,
-    availability: 'all',
-    verified: false,
-    creationYear: 0,
-  })
-  const [sort, setSort] = useState<SortOption>('featured')
+  const [error, setError] = useState(false)
 
-  // Fetch artworks
-  useEffect(() => {
-    const fetchArtworks = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const res = await fetch('/api/v1/artworks')
-        if (!res.ok) {
-          throw new Error('Failed to fetch artworks')
-        }
-        const data = await res.json()
-        setArtworks(data)
-      } catch (err) {
-        setError('Unable to load artworks')
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const loadArtworks = () => { setLoading(true); fetch('/api/v1/artworks').then((response) => response.ok ? response.json() : Promise.reject()).then(setArtworks).catch(() => setError(true)).finally(() => setLoading(false)) }
+  useEffect(() => { loadArtworks() }, [])
 
-    fetchArtworks()
-  }, [])
+  const filtered = artworks.filter((artwork) => `${artwork.title} ${artwork.craft} ${artwork.region}`.toLowerCase().includes(query.toLowerCase()) && (!craft || artwork.craft === craft)).sort((a, b) => sort === 'price-low' ? a.price - b.price : sort === 'price-high' ? b.price - a.price : (b.view_count || b.viewCount || 0) - (a.view_count || a.viewCount || 0))
+  const crafts = [...new Set(artworks.map((artwork) => artwork.craft).filter(Boolean))]
 
-  // Apply filters and sorting
-  const filteredArtworks = artworks.filter((art) => {
-    const a = art
-    return (
-      (!filters.craft || a.craft.toLowerCase().includes(filters.craft.toLowerCase())) &&
-      (!filters.region || a.region.toLowerCase().includes(filters.region.toLowerCase())) &&
-      (!filters.material || a.material.toLowerCase().includes(filters.material.toLowerCase())) &&
-      (a.price >= filters.minPrice) &&
-      (a.price <= filters.maxPrice) &&
-      (filters.availability === 'all' || a.is_available === filters.availability) &&
-      (!filters.verified || a.verified) &&
-      (filters.creationYear === 0 || a.creationYear >= filters.creationYear)
-    )
-  })
-
-  const sortedArtworks = [...filteredArtworks].sort((a, b) => {
-    if (sort === 'featured') return 0
-    if (sort === 'newest') return b.creationYear - a.creationYear
-    if (sort === 'priceLow') return a.price - b.price
-    if (sort === 'priceHigh') return b.price - a.price
-    if (sort === 'popular') return b.viewCount - a.viewCount
-    return 0
-  })
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8">
-        <LoadingSkeleton paragraphs={3} images={5} />
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <EmptyState
-        message="Error loading marketplace"
-        illustration={<div className="text-center" />}
-        ctaLabel="Try Again"
-        onCta={() => {
-          setError(null)
-          setLoading(true)
-          fetchArtworks()
-        }}
-      />
-    )
-  }
-
-  return (
-    <div className="bg-canvas min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-{/* Search & Filters */}
-         <div className="flex flex-col sm:flex-row gap-6 mb-10">
-           <SearchBar />
-           <FilterBar options={filters} onChange={setFilters} />
-           <SortBar options={sort} onChange={setSort} />
-         </div>
- 
-         {/* Page Header */}
-         <div className="text-center py-12">
-           <h2 className="text-4xl md:text-5xl font-serif text-ink mb-4">Discover Premium Artisan Creations</h2>
-           <p className="text-xl md:text-2xl text-ink/70 max-w-2xl mx-auto">Explore a curated collection of handcrafted Indian artworks, each with verified authenticity and elegant presentation.</p>
-         </div>
- 
-         {/* Artwork Grid */}
-         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {loading ? (
-            <LoadingSkeleton paragraphs={4} images={8} />
-          ) : sortedArtworks.length === 0 ? (
-            <EmptyState
-              message="No artworks found"
-              illustration={<div className="flex justify-center" />}
-              ctaLabel="Browse Categories"
-            />
-          ) : (
-            sortedArtworks.map((artwork) => (
-              <ArtworkCard key={artwork.artwork_id} artwork={artwork} />
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  )
+  return <main className="min-h-screen bg-obsidian px-5 pb-24 pt-36 sm:px-10"><div className="mx-auto max-w-[1500px]"><div className="max-w-3xl"><p className="eyebrow">Marketplace / verified physical art</p><h1 className="mt-7 font-display text-7xl leading-[.88] text-ivory sm:text-9xl">Discover art.</h1><p className="mt-6 max-w-xl font-display text-2xl text-muted">Original Indian craft, documented from the artisan's hands to the collector's wall.</p></div><div className="mt-16 flex flex-col gap-3 border-y border-ivory/10 py-5 lg:flex-row"><label className="relative flex-1"><span className="sr-only">Search artworks</span><Search className="absolute left-4 top-3 text-muted" size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search artworks, crafts, regions..." className="w-full border border-ivory/10 bg-surface py-3 pl-11 pr-4 text-sm text-ivory outline-none focus:border-gold" /></label><select value={craft} onChange={(event) => setCraft(event.target.value)} className="border border-ivory/10 bg-surface px-4 py-3 text-sm text-ivory outline-none focus:border-gold"><option value="">All crafts</option>{crafts.map((item) => <option key={item} value={item}>{item}</option>)}</select><select value={sort} onChange={(event) => setSort(event.target.value)} className="border border-ivory/10 bg-surface px-4 py-3 text-sm text-ivory outline-none focus:border-gold"><option value="featured">Featured</option><option value="price-low">Price: low</option><option value="price-high">Price: high</option></select><button type="button" className="quiet-button"><SlidersHorizontal size={15} /> Filters</button></div>{loading ? <div className="py-24 text-muted">Loading the collection...</div> : error ? <div className="py-24"><p className="font-display text-4xl text-ivory">The catalogue is temporarily unavailable.</p><button type="button" onClick={loadArtworks} className="quiet-button mt-8">Try again</button></div> : filtered.length === 0 ? <div className="py-24 text-muted">No artworks match this search.</div> : <div className="mt-14 grid gap-x-6 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">{filtered.map((artwork, index) => <Link key={artwork.artwork_id} to={`/artwork/${artwork.artwork_id}`} className={`group ${index % 4 === 0 ? 'lg:translate-y-12' : ''}`}><div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-elevated"><img src={artwork.image_url || ''} alt={artwork.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" /></div><div className="flex items-start justify-between gap-4 border-b border-ivory/10 py-5"><div><h2 className="font-display text-2xl text-ivory">{artwork.title}</h2><p className="mt-1 text-[10px] uppercase tracking-[.14em] text-muted">{artwork.craft} / {artwork.region}</p></div><div className="text-right"><p className="font-display text-lg text-ivory">₹{artwork.price.toLocaleString('en-IN')}</p>{(artwork.verified || artwork.is_verified) && <p className="mt-1 flex items-center justify-end gap-1 text-[9px] uppercase tracking-[.14em] text-gold"><Check size={11} /> Verified</p>}</div></div><span className="mt-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.16em] text-gold opacity-0 transition-opacity group-hover:opacity-100">View artwork <ArrowUpRight size={13} /></span></Link>)}</div>}</div></main>
 }

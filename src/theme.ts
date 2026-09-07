@@ -40,4 +40,13 @@ export const colors = {
     800: '#292524',
     900: '#1C1917',
   },
+  obsidian: '#08090B',
+  'elevated-surface': '#111318',
+  'secondary-surface': '#15171C',
+  hover: '#1A1D23',
+  'warm-ivory': '#F5F2EA',
+  muted: '#8F8C86',
+  'antique-gold': '#C8A951',
+  'gold-highlight': '#D6B85A',
+  'deep-vermilion': '#8E2924',
 }

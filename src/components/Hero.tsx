@@ -4,22 +4,22 @@ import { Link } from 'react-router-dom'
 
 export const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-canvas pt-20">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-surface pt-20 backdrop-blur-md">
       {/* Watercolor Background Layers */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <div className="absolute inset-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=1920')] bg-cover bg-center mix-blend-multiply"></div>
+        <div className="absolute inset-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1526401485004-2c9c5a7c2e8c?auto=format&fit=crop&q=80&w=1920')] bg-cover bg-center mix-blend-multiply"></div>
       </div>
       
 {/* Animated Blobs */}
        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
          <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-terracotta/20 rounded-full blur-[60px]">
-           <motion.div 
-             animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-             className="absolute top-10 right-10 w-[400px] h-[400px] bg-terracotta/20 rounded-full blur-[60px]"
+<motion.div 
+  animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+  className="absolute top-10 right-10 w-[400px] h-[400px] bg-gold/20 rounded-full blur-[60px]"
            />
          </div>
-<div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-muted-gold/15 rounded-full blur-[80px]">
+<div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-gold-light/15 rounded-full blur-[80px]">
   <motion.div 
     animate={{ y: [0, 30, 0], rotate: [0, -5, 0] }}
     transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}

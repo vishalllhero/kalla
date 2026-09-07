@@ -2,7 +2,6 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { Footer } from './components/Footer'
-import { Home } from './pages/Home'
 import { Customize } from './pages/Customize'
 import { Shop } from './pages/Shop'
 import { ProductDetails } from './pages/ProductDetails'
@@ -22,6 +21,8 @@ import VerifiedArtPage from './pages/VerifiedArtPage'
 import ArtisanProfile from './pages/ArtisanProfile'
 import BuyerCollection from './pages/BuyerCollection'
 import Explore from './pages/Explore'
+import { PremiumHome } from './pages/PremiumHome'
+import Provenance from './pages/Provenance'
 
 function App() {
   return (
@@ -35,12 +36,14 @@ function App() {
               <CartDrawer />
               <main>
                 <Routes>
-                  <Route path="/" element={<Home />} />
+                  <Route path="/" element={<PremiumHome />} />
                   <Route path="/shop" element={<Shop />} />
                   <Route path="/explore" element={<Explore />} />
                   <Route path="/sell" element={<Customize />} />
                   <Route path="/product/:id" element={<ProductDetails />} />
+                  <Route path="/artwork/:id" element={<ProductDetails />} />
                   <Route path="/customize" element={<Customize />} />
+                  <Route path="/ai-studio" element={<Customize />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/checkout/:id" element={<Checkout />} />
                   <Route path="/purchase-success/:id" element={<PurchaseSuccess />} />
@@ -49,6 +52,8 @@ function App() {
                   <Route path="/collection" element={<BuyerCollection />} />
                   <Route path="/b2b/buyer" element={<B2BBuyer />} />
                   <Route path="/b2b/artisan" element={<B2BArtisan />} />
+                  <Route path="/b2b" element={<B2BBuyer />} />
+                  <Route path="/provenance/:id" element={<Provenance />} />
                   <Route path="/nft-marketplace" element={<NFTMarketplace />} />
                   <Route path="/wallet" element={<Wallet />} />
                 </Routes>

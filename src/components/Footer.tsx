@@ -1,56 +1,12 @@
-import React from 'react';
-import { Instagram, Facebook, Twitter, Mail } from 'lucide-react';
-import { Logo } from './Logo';
+import { Link } from 'react-router-dom'
+import { Instagram, Mail } from 'lucide-react'
+import { Logo } from './Logo'
 
-export const Footer = () => {
-  return (
-    <footer className="bg-ink text-canvas/60 border-t border-stone-100/30 py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-16">
-          <div className="col-span-1 md:col-span-2">
-            <div className="mb-8">
-              <Logo className="w-48 h-20" variant="light" />
-            </div>
-            <p className="max-w-md leading-relaxed mb-8 font-serif text-lg font-light">
-              "We don't just sell art; we curate authentic cultural expression." <br/>
-              Celebrating the imperfect perfection of the human hand.
-            </p>
-            <div className="flex space-x-6">
-              <a href="#" className="hover:text-clay-400 transition-colors"><Instagram size={22} strokeWidth={1.5} /></a>
-              <a href="#" className="hover:text-clay-400 transition-colors"><Facebook size={22} strokeWidth={1.5} /></a>
-              <a href="#" className="hover:text-clay-400 transition-colors"><Twitter size={22} strokeWidth={1.5} /></a>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-white font-sans text-xs uppercase tracking-[0.2em] mb-6">Collection</h3>
-            <ul className="space-y-4 font-serif text-lg">
-              <li><a href="#men" className="hover:text-clay-400 transition-colors">Men's Gallery</a></li>
-              <li><a href="#women" className="hover:text-clay-400 transition-colors">Women's Gallery</a></li>
-              <li><a href="#bags" className="hover:text-clay-400 transition-colors">Artisan Bags</a></li>
-              <li><a href="#art" className="hover:text-clay-400 transition-colors">Canvas Studio</a></li>
-              <li><a href="/customize" className="hover:text-clay-400 transition-colors">Commissions</a></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="text-white font-sans text-xs uppercase tracking-[0.2em] mb-6">Studio</h3>
-            <ul className="space-y-4 font-serif text-lg">
-              <li className="flex items-center gap-3"><Mail size={18} className="text-clay-500" /> hello@kalla.art</li>
-              <li>123 Art District, Creative Lane</li>
-              <li>New York, NY 10012</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="border-t border-stone-100/30 pt-10 flex flex-col md:flex-row justify-between items-center text-sm font-sans tracking-wide opacity-60">
-          <p className="text-canvas/70">&copy; 2025 Kalla Art Marketplace.</p>
-          <div className="flex space-x-8 mt-6 md:mt-0">
-            <a href="#" className="hover:text-clay-400">Privacy</a>
-            <a href="#" className="hover:text-clay-400">Terms</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-};
+const groups = [
+  { title: 'Discover', links: [['Artworks', '/shop'], ['Collections', '/collection'], ['Artisans', '/explore']] },
+  { title: 'Business', links: [['B2B Marketplace', '/b2b'], ['Source Art', '/b2b/buyer'], ['Sell with KALAA', '/b2b/artisan']] },
+  { title: 'Technology', links: [['Digital Identity', '/verified-art'], ['Provenance', '/provenance/demo'], ['AI Studio', '/ai-studio']] },
+  { title: 'Company', links: [['About', '/'], ['Contact', '/'], ['Privacy', '/']] },
+]
+
+export const Footer = () => <footer className="border-t border-ivory/10 bg-surface"><div className="mx-auto max-w-[1500px] px-5 py-20 sm:px-10"><div className="grid gap-14 lg:grid-cols-[1.4fr_2fr]"><div><Logo /><p className="mt-8 max-w-sm font-display text-3xl leading-[.95] text-ivory">Where Indian craftsmanship meets digital identity.</p><a href="mailto:hello@kalaa.art" className="mt-8 inline-flex items-center gap-2 text-sm text-muted hover:text-gold"><Mail size={15} /> hello@kalaa.art</a></div><div className="grid grid-cols-2 gap-10 sm:grid-cols-4">{groups.map((group) => <div key={group.title}><h2 className="text-[10px] uppercase tracking-[.18em] text-gold">{group.title}</h2><ul className="mt-5 space-y-3 text-sm text-muted">{group.links.map(([label, href]) => <li key={label}><Link to={href} className="transition-colors hover:text-ivory">{label}</Link></li>)}</ul></div>)}</div></div><div className="mt-20 flex flex-col justify-between gap-5 border-t border-ivory/10 pt-6 text-[10px] uppercase tracking-[.16em] text-muted sm:flex-row"><span>© KALAA / Physical art · Digital identity</span><a href="#" aria-label="KALAA on Instagram" title="Instagram" className="hover:text-gold"><Instagram size={15} /></a></div></div></footer>

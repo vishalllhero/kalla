@@ -15,7 +15,7 @@ export const Home = () => {
   const bestSellers = products.filter(p => p.rating >= 4.8).slice(0, 3);
 
   return (
-    <div className="bg-canvas min-h-screen">
+    <div className="bg-surface min-h-screen">
       <Hero />
       
       {/* Trending Categories - Apple Style Grid */}

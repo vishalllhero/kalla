@@ -4,7 +4,7 @@ import { Quote } from 'lucide-react';
 
 export const AboutArtist = () => {
   return (
-    <section className="py-32 bg-canvas relative overflow-hidden">
+    <section className="py-32 bg-surface relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           
@@ -43,7 +43,7 @@ export const AboutArtist = () => {
             </h2>
             
             <div className="relative pl-8 border-l-2 border-ochre-300 mb-8">
-              <Quote className="absolute -top-4 -left-3 bg-canvas text-ochre-400 p-1" size={24} />
+              <Quote className="absolute -top-4 -left-3 bg-surface text-ochre-400 p-1" size={24} />
               <p className="text-lg text-ink/70 font-serif italic leading-relaxed">
                 "Art isn't just about making things look good. It's about capturing a feeling, a moment, a whisper of the soul, and making it tangible. Whether it's on a canvas or a cotton shirt, every piece I create is a dialogue between my heart and your world."
               </p>
