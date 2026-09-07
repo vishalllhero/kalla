@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { Check, FileText, ShoppingCart } from 'lucide-react'
 import ProvenanceTimeline from '../components/ProvenanceTimeline'
-import { API_BASE_URL } from '../lib/api'
+import { apiUrl } from '../lib/api'
 
 type PurchaseData = {
   order_id: string
@@ -41,7 +41,7 @@ export function PurchaseSuccess() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/orders/${id}`)
+        const res = await fetch(apiUrl(`/api/v1/orders/${id}`))
         if (!res.ok) throw new Error('Purchase not found')
         const data = await res.json()
         setPurchase(data)

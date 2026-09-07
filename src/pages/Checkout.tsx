@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useShop } from '../context/ShopContext'
 import { useWeb3 } from '../context/Web3Context'
 import type { Product } from '../data/products'
+import { apiUrl } from '../lib/api'
 
 export const Checkout = () => {
   const { id } = useParams()
@@ -16,7 +17,7 @@ export const Checkout = () => {
     const fetchProduct = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`${window.location.origin}/api/v1/artworks/${id}`)
+        const response = await fetch(apiUrl(`/api/v1/artworks/${id}`))
         if (response.ok) {
           const data = await response.json()
           setArtwork(data)

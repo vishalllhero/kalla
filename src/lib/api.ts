@@ -1,9 +1,17 @@
 import axios from 'axios';
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+export const API_BASE_URL = configuredApiUrl || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '');
+export const apiUrl = (path: string) => {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (API_BASE_URL.endsWith('/api') && normalizedPath.startsWith('/api')) {
+    return `${API_BASE_URL}${normalizedPath.slice(4)}`;
+  }
+  return `${API_BASE_URL}${normalizedPath}`;
+};
 
 const api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
+  baseURL: apiUrl('/api/v1'),
   headers: {
     'Content-Type': 'application/json',
   },

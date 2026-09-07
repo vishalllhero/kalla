@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowUpRight, Heart, Share2, ShieldCheck } from 'lucide-react'
 import { useWeb3 } from '../context/Web3Context'
-import { API_BASE_URL } from '../lib/api'
+import { apiUrl } from '../lib/api'
 
 type ArtworkDetails = { artwork_id: string; title: string; description: string; price: number; currency: string; region: string; craft: string; verified: boolean; image_url: string; certificate_id: string; blockchain_status: string }
 
@@ -14,7 +14,7 @@ export function ProductDetails() {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/v1/artworks/${id}`).then((response) => response.ok ? response.json() : Promise.reject()).then(setArtwork).catch(() => setError(true))
+    fetch(apiUrl(`/api/v1/artworks/${id}`)).then((response) => response.ok ? response.json() : Promise.reject()).then(setArtwork).catch(() => setError(true))
   }, [id])
 
   if (error) return <main className="flex min-h-screen items-center justify-center bg-obsidian px-5 text-center"><div><p className="eyebrow justify-center">Artwork unavailable</p><h1 className="mt-6 font-display text-5xl text-ivory">We could not load this work.</h1><Link to="/explore" className="quiet-button mt-8">Back to explore</Link></div></main>

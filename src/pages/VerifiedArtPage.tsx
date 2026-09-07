@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import ArtworkCard from '../components/ArtworkCard'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import EmptyState from '../components/EmptyState'
+import { apiUrl } from '../lib/api'
 
 export default function VerifiedArtPage() {
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ export default function VerifiedArtPage() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch('/api/v1/artworks')
+        const res = await fetch(apiUrl('/api/v1/artworks'))
         if (!res.ok) throw new Error('Failed to fetch artworks')
         const data = await res.json()
         const verified = data.filter((a) => a.verified)

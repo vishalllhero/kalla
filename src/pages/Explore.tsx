@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowUpRight, Check, Search, SlidersHorizontal } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 type Artwork = { artwork_id: string; title: string; craft: string; region: string; material: string; price: number; is_available: string; verified?: boolean; is_verified?: boolean; creationYear?: number; creation_year?: number; viewCount?: number; view_count?: number; image_url?: string }
 
@@ -12,7 +13,7 @@ export default function Explore() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const loadArtworks = () => { setLoading(true); fetch('/api/v1/artworks').then((response) => response.ok ? response.json() : Promise.reject()).then(setArtworks).catch(() => setError(true)).finally(() => setLoading(false)) }
+  const loadArtworks = () => { setLoading(true); fetch(apiUrl('/api/v1/artworks')).then((response) => response.ok ? response.json() : Promise.reject()).then(setArtworks).catch(() => setError(true)).finally(() => setLoading(false)) }
   useEffect(() => { loadArtworks() }, [])
 
   const filtered = artworks.filter((artwork) => `${artwork.title} ${artwork.craft} ${artwork.region}`.toLowerCase().includes(query.toLowerCase()) && (!craft || artwork.craft === craft)).sort((a, b) => sort === 'price-low' ? a.price - b.price : sort === 'price-high' ? b.price - a.price : (b.view_count || b.viewCount || 0) - (a.view_count || a.viewCount || 0))

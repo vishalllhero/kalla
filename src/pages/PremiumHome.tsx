@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { ArrowUpRight, Check, Heart, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { products } from '../data/products'
+import { apiUrl } from '../lib/api'
 
 const heroWork = products[7]
 const works = products.slice(3, 9)
@@ -28,7 +29,7 @@ export const PremiumHome = () => {
   const [catalogArtwork, setCatalogArtwork] = useState<FeaturedArtwork | null>(null)
 
   useEffect(() => {
-    fetch('/api/v1/artworks?limit=1&verified=true')
+    fetch(apiUrl('/api/v1/artworks?limit=1&verified=true'))
       .then((response) => response.ok ? response.json() : null)
       .then((artworks: FeaturedArtwork[] | null) => setCatalogArtwork(artworks?.[0] ?? null))
       .catch(() => setCatalogArtwork(null))

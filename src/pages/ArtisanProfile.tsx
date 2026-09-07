@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import ArtworkCard from '../components/ArtworkCard'
 import VerifiedBadge from '../components/VerifiedBadge'
-import { API_BASE_URL } from '../lib/api'
+import { apiUrl } from '../lib/api'
 
 type ArtisanProfileProps = {
   artisan: {
@@ -45,7 +45,7 @@ export default function ArtisanProfile() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/artisans/${id}`)
+        const res = await fetch(apiUrl(`/api/v1/artisans/${id}`))
         if (!res.ok) throw new Error('Artisan not found')
         const data = await res.json()
         setArtisan(data.artisan)

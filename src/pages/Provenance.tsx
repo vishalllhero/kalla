@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowUpRight, Check, ShieldCheck } from 'lucide-react'
-import { API_BASE_URL } from '../lib/api'
+import { apiUrl } from '../lib/api'
 
 type Verification = { artwork_id: string; title: string; image_url?: string; certificate_id?: string; events?: Array<{ title: string; description: string; date: string }> }
 
@@ -11,7 +11,7 @@ export default function Provenance() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/v1/verify/${id}`)
+    fetch(apiUrl(`/api/v1/verify/${id}`))
       .then((response) => response.ok ? response.json() : null)
       .then((data: Verification | null) => setRecord(data))
       .finally(() => setLoading(false))

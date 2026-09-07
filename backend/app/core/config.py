@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     # JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
-    ALGORITHM: str = "HS256"
+    ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
@@ -69,6 +69,7 @@ class Settings(BaseSettings):
 
     # Frontend
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "")
 
     # Demo Credentials
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@kalaamarket.com")

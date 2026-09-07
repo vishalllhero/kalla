@@ -38,9 +38,15 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
+_configured_origins = [origin.strip().rstrip("/") for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+_configured_origins.append(settings.FRONTEND_URL.rstrip("/"))
+if os.getenv("VERCEL_URL"):
+    _configured_origins.append(f"https://{os.getenv('VERCEL_URL')}")
+_allow_wildcard_cors = settings.DEBUG and settings.ENVIRONMENT != "production" and not os.getenv("VERCEL")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.DEBUG else [settings.FRONTEND_URL],
+    allow_origins=["*"] if _allow_wildcard_cors else list(dict.fromkeys(_configured_origins)),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

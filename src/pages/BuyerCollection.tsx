@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useShop } from '../context/ShopContext'
+import { apiUrl } from '../lib/api'
 
 type Artwork = {
   artwork_id: string
@@ -27,14 +28,14 @@ export default function BuyerCollection() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`/api/v1/orders?buyer_id=${buyerId}`)
+        const res = await fetch(apiUrl(`/api/v1/orders?buyer_id=${buyerId}`))
         if (!res.ok) throw new Error('Failed to fetch orders')
         const orders = await res.json()
 
         const artworkIds = Array.from(new Set(orders.map((o: { artwork_id: string }) => o.artwork_id)))
 
         const artworkPromises = artworkIds.map((id: string) =>
-          fetch(`/api/v1/artworks/${id}`)
+          fetch(apiUrl(`/api/v1/artworks/${id}`))
             .then((res) => res.ok ? res.json() : null)
             .catch(() => null)
         )
