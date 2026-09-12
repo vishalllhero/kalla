@@ -8,6 +8,7 @@ from .order import (
 from .certificate import (
     Certificate, BlockchainRecord, ProvenanceEvent, OwnershipTransfer
 )
+from .provenance import ProvenanceRecord
 from .b2b_ai import (
     B2BRequest, B2BMatch, AICatalog, AIPricePrediction,
     AIRecommendation, AIImageJob
@@ -37,6 +38,7 @@ __all__ = [
     "BlockchainRecord",
     "ProvenanceEvent",
     "OwnershipTransfer",
+    "ProvenanceRecord",
     "B2BRequest",
     "B2BMatch",
     "AICatalog",

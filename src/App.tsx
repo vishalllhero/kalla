@@ -23,6 +23,7 @@ import BuyerCollection from './pages/BuyerCollection'
 import Explore from './pages/Explore'
 import { PremiumHome } from './pages/PremiumHome'
 import Provenance from './pages/Provenance'
+import ArtisanDirectory from './pages/ArtisanDirectory'
 import AdminLogin from './pages/AdminLogin'
 import AdminPanel from './pages/AdminPanel'
 
@@ -51,11 +52,13 @@ function App() {
                   <Route path="/purchase-success/:id" element={<PurchaseSuccess />} />
                   <Route path="/verified-art" element={<VerifiedArtPage />} />
                   <Route path="/artisan/:id" element={<ArtisanProfile />} />
+                  <Route path="/artisans" element={<ArtisanDirectory />} />
                   <Route path="/collection" element={<BuyerCollection />} />
                   <Route path="/b2b/buyer" element={<B2BBuyer />} />
                   <Route path="/b2b/artisan" element={<B2BArtisan />} />
                   <Route path="/b2b" element={<B2BBuyer />} />
                   <Route path="/provenance/:id" element={<Provenance />} />
+                  <Route path="/verify/:id" element={<Provenance />} />
                   <Route path="/nft-marketplace" element={<NFTMarketplace />} />
                   <Route path="/wallet" element={<Wallet />} />
                   <Route path="/admin/login" element={<AdminLogin />} />

@@ -8,6 +8,8 @@ from .routes.b2b import router as b2b_router
 from .routes.verify import router as verify_router
 from .routes.dashboard import router as dashboard_router
 from .routes.categories import router as categories_router
+from .routes.provenance import router as provenance_router
+from .routes.artisans import router as artisans_router
 
 api_router = APIRouter()
 
@@ -19,3 +21,5 @@ api_router.include_router(b2b_router, prefix="/b2b", tags=["b2b"])
 api_router.include_router(verify_router, prefix="/verify", tags=["verification"])
 api_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(categories_router, prefix="/categories", tags=["categories"])
+api_router.include_router(provenance_router, prefix="/provenance", tags=["provenance"])
+api_router.include_router(artisans_router, prefix="/artisans", tags=["artisans"])

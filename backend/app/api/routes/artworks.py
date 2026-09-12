@@ -509,13 +509,11 @@ async def price_suggestion(
 @router.post("/{artwork_id}/register-blockchain", response_model=dict)
 async def register_blockchain(
     artwork_id: str,
-    current_user: User = Depends(get_artisan),
+    current_user: User = Depends(get_admin),
     db: Session = Depends(get_db)
 ):
-    """Register artwork on blockchain and generate digital certificate."""
+    """Legacy certificate registration retained for admins only."""
     artwork = _get_artwork_or_404(db, artwork_id)
-    if current_user.role.name != "admin" and artwork.artisan_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
 
     if artwork.blockchain_status == "registered":
         existing_cert = db.query(Certificate).filter(Certificate.artwork_id == artwork.id).first()

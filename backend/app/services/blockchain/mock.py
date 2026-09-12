@@ -78,6 +78,7 @@ class MockBlockchainService(BlockchainServiceInterface):
             "registration_date": datetime.utcnow().isoformat(),
             "status": "active",
             "contract_address": self._contract_address,
+            "transaction_hash": txn_hash,
         }
 
         self._state[artwork_id] = record
@@ -127,6 +128,7 @@ class MockBlockchainService(BlockchainServiceInterface):
             "owner_address": record["owner_address"],
             "metadata_hash": record["metadata_hash"],
             "metadata_uri": record["metadata_uri"],
+            "transaction_hash": record.get("transaction_hash"),
             "registration_date": record["registration_date"],
             "contract_address": self._contract_address,
             "network": self._network,
@@ -163,6 +165,44 @@ class MockBlockchainService(BlockchainServiceInterface):
                     "details": entry.get("details", {}),
                 })
         return events
+
+    async def create_provenance_record(
+        self, product_id: str, artisan_id: str, metadata_hash: str
+    ) -> Dict[str, Any]:
+        result = await self.register_artwork(
+            artwork_id=product_id,
+            certificate_id=f"PROV-{product_id}",
+            metadata_hash=metadata_hash,
+            owner_address=artisan_id,
+            metadata_uri="",
+        )
+        return {
+            "status": result["status"],
+            "network": result["network"],
+            "transaction_signature": result["transaction_hash"],
+            "block_number": result["block_number"],
+            "contract_address": result["contract_address"],
+        }
+
+    async def verify_provenance(
+        self, product_id: str, metadata_hash: str, transaction_signature: Optional[str]
+    ) -> Dict[str, Any]:
+        result = await self.verify_artwork(product_id)
+        return {
+            "is_verified": result.get("is_verified", False)
+            and result.get("metadata_hash") == metadata_hash
+            and (not transaction_signature or transaction_signature in {
+                result.get("transaction_signature"),
+                result.get("transaction_hash"),
+            }),
+            "network": result.get("network", self._network),
+        }
+
+    async def get_transaction(self, transaction_signature: str) -> Dict[str, Any]:
+        return {"transaction_signature": transaction_signature, "network": self._network, "status": "confirmed"}
+
+    def get_explorer_url(self, transaction_signature: str) -> Optional[str]:
+        return None
 
     async def transfer_artwork(
         self,
@@ -256,7 +296,10 @@ def get_blockchain_service() -> BlockchainServiceInterface:
     global _mock_blockchain
     if _mock_blockchain is None:
         provider = settings.BLOCKCHAIN_PROVIDER
-        if provider == "web3" and settings.RPC_URL and settings.PRIVATE_KEY:
+        if provider == "solana":
+            from .solana import SolanaBlockchainProvider
+            _mock_blockchain = SolanaBlockchainProvider()
+        elif provider == "web3" and settings.RPC_URL and settings.PRIVATE_KEY:
             from .web3_service import Web3BlockchainService
             _mock_blockchain = Web3BlockchainService()
         else:

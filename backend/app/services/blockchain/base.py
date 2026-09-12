@@ -38,6 +38,30 @@ class BlockchainServiceInterface(ABC):
         pass
 
     @abstractmethod
+    async def create_provenance_record(
+        self, product_id: str, artisan_id: str, metadata_hash: str
+    ) -> Dict[str, Any]:
+        """Anchor a product metadata hash and return a provider reference."""
+        pass
+
+    @abstractmethod
+    async def verify_provenance(
+        self, product_id: str, metadata_hash: str, transaction_signature: Optional[str]
+    ) -> Dict[str, Any]:
+        """Verify an anchored product metadata hash."""
+        pass
+
+    @abstractmethod
+    async def get_transaction(self, transaction_signature: str) -> Dict[str, Any]:
+        """Fetch provider transaction details."""
+        pass
+
+    @abstractmethod
+    def get_explorer_url(self, transaction_signature: str) -> Optional[str]:
+        """Return a public explorer URL when supported by the network."""
+        pass
+
+    @abstractmethod
     async def transfer_artwork(
         self,
         artwork_id: str,
