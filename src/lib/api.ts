@@ -10,6 +10,20 @@ export const apiUrl = (path: string) => {
   return `${API_BASE_URL}${normalizedPath}`;
 };
 
+let refreshRequest: Promise<string> | null = null;
+
+const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem('refresh_token');
+  if (!refreshToken) throw new Error('No refresh token available');
+  const response = await axios.post(apiUrl('/api/v1/auth/refresh'), null, {
+    params: { refresh_token: refreshToken },
+  });
+  localStorage.setItem('access_token', response.data.access_token);
+  localStorage.setItem('refresh_token', response.data.refresh_token);
+  localStorage.setItem('user', JSON.stringify(response.data.user));
+  return response.data.access_token as string;
+};
+
 const api = axios.create({
   baseURL: apiUrl('/api/v1'),
   headers: {
@@ -29,9 +43,23 @@ api.interceptors.request.use((config) => {
 // Handle auth errors
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const request = error.config as (typeof error.config & { _retry?: boolean }) | undefined;
+    const isRefreshRequest = request?.url?.includes('/auth/refresh');
+    if (error.response?.status === 401 && request && !request._retry && !isRefreshRequest) {
+      request._retry = true;
+      try {
+        refreshRequest ??= refreshAccessToken().finally(() => { refreshRequest = null; });
+        const token = await refreshRequest;
+        request.headers.Authorization = `Bearer ${token}`;
+        return api(request);
+      } catch {
+        // Fall through to the normal logout path when refresh fails.
+      }
+    }
     if (error.response?.status === 401) {
       localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
       localStorage.removeItem('user');
       window.dispatchEvent(new Event('auth:logout'));
     }
@@ -44,12 +72,14 @@ export const login = async (email: string, password: string) => {
   const response = await api.post('/auth/login', { email, password });
   const { access_token, user } = response.data;
   localStorage.setItem('access_token', access_token);
+  localStorage.setItem('refresh_token', response.data.refresh_token);
   localStorage.setItem('user', JSON.stringify(user));
   return { access_token, user };
 };
 
 export const logout = () => {
   localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
   localStorage.removeItem('user');
   window.dispatchEvent(new Event('auth:logout'));
 };

@@ -80,6 +80,16 @@ BUYER_NAMES = [
 
 
 def seed():
+    required_credentials = {
+        "ADMIN_EMAIL": settings.ADMIN_EMAIL,
+        "ADMIN_PASSWORD": settings.ADMIN_PASSWORD,
+        "ARTISAN_PASSWORD": settings.ARTISAN_PASSWORD,
+        "BUYER_PASSWORD": settings.BUYER_PASSWORD,
+    }
+    missing_credentials = [name for name, value in required_credentials.items() if not value]
+    if missing_credentials:
+        raise RuntimeError(f"Configure seed credentials before running seed_data.py: {', '.join(missing_credentials)}")
+
     db = SessionLocal()
 
     try:
@@ -142,7 +152,7 @@ def seed():
 
             user = User(
                 email=email,
-                password_hash=hash_password(f"Artisan@123"),
+                password_hash=hash_password(settings.ARTISAN_PASSWORD),
                 role_id=roles["artisan"].id,
                 display_name=name,
                 full_name=name,
@@ -188,7 +198,7 @@ def seed():
             email = f"buyer{i+1}@kalaamarket.com"
             user = User(
                 email=email,
-                password_hash=hash_password(f"Buyer@123"),
+                password_hash=hash_password(settings.BUYER_PASSWORD),
                 role_id=roles["buyer"].id,
                 display_name=name,
                 full_name=name,
@@ -790,9 +800,8 @@ def seed():
         print(f"B2B Requests: {db.query(B2BRequest).count()}")
 
         print("\nDemo Credentials:")
-        print(f"  Admin: {settings.ADMIN_EMAIL} / {settings.ADMIN_PASSWORD}")
-        print(f"  Artisan: artisan1@kalaamarket.com / Artisan@123")
-        print(f"  Buyer: buyer1@kalaamarket.com / Buyer@123")
+        print(f"  Admin email: {settings.ADMIN_EMAIL}")
+        print("  Artisan and buyer passwords were supplied through environment configuration.")
 
     except Exception as e:
         db.rollback()

@@ -1,5 +1,6 @@
 import os
 import hashlib
+import uuid
 from typing import Optional
 from ...core.config import settings
 
@@ -26,15 +27,27 @@ class LocalStorageService:
 
     def save_upload_file(self, file, subdir: str = "") -> dict:
         """Save an uploaded file (FastAPI UploadFile). Returns file info dict."""
-        import shutil
         filename = file.filename or "unnamed"
-        safe_name = self._sanitize_filename(filename)
+        sanitized_name = self._sanitize_filename(filename)
+        extension = os.path.splitext(sanitized_name)[1].lower()
+        safe_name = f"{uuid.uuid4().hex}{extension}"
         dir_path = os.path.join(self.base_path, subdir) if subdir else self.base_path
         os.makedirs(dir_path, exist_ok=True)
         filepath = os.path.join(dir_path, safe_name)
-        with open(filepath, "wb") as f:
-            shutil.copyfileobj(file.file, f)
-        file_size = os.path.getsize(filepath)
+        file_size = 0
+        try:
+            with open(filepath, "wb") as output:
+                while chunk := file.file.read(1024 * 1024):
+                    file_size += len(chunk)
+                    if file_size > settings.MAX_UPLOAD_SIZE:
+                        raise ValueError("Uploaded file is too large")
+                    output.write(chunk)
+        except Exception:
+            try:
+                os.remove(filepath)
+            except OSError:
+                pass
+            raise
         return {
             "filename": safe_name,
             "filepath": filepath,

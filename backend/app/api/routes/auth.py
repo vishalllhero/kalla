@@ -6,7 +6,6 @@ from ...models.user import User, ArtisanProfile, BuyerProfile
 from ...models.role import Role
 from ...schemas.auth import UserRegister, UserLogin, Token, UserRead
 from ...utils import generate_artisan_id
-import secrets
 from datetime import datetime
 
 router = APIRouter()
@@ -15,6 +14,11 @@ router = APIRouter()
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """Register a new user with role-based profile creation."""
+    if user_data.role == "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator accounts cannot be self-registered",
+        )
     existing = db.query(User).filter(User.email == user_data.email).first()
     if existing:
         raise HTTPException(
@@ -191,5 +195,4 @@ async def generate_otp(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    otp = secrets.token_hex(3)
-    return {"message": "OTP sent", "otp_debug": otp}
+    return {"message": "OTP sent"}

@@ -6,6 +6,7 @@ from ...core.config import settings
 from ...models.artwork import Artwork, ArtworkImage, Category
 from ...models.user import User, ArtisanProfile
 from ...models.certificate import Certificate, BlockchainRecord, ProvenanceEvent
+from ...models.provenance import ProvenanceRecord
 from ...schemas.certificate import VerifyResponse, ProvenanceResponse, ProvenanceEventRead, CertificateRead
 from ...schemas.artwork import ArtworkRead, ArtworkListItem
 from ...services.blockchain import get_blockchain_service
@@ -24,9 +25,22 @@ async def verify_artwork(artwork_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Artwork not found")
 
     certificate = db.query(Certificate).filter(Certificate.artwork_id == artwork.id).first()
+    provenance_record = db.query(ProvenanceRecord).filter(
+        ProvenanceRecord.artwork_id == artwork.id
+    ).first()
     blockchain = get_blockchain_service()
 
-    blockchain_verify = await blockchain.verify_artwork(artwork.artwork_id)
+    try:
+        if provenance_record:
+            blockchain_verify = await blockchain.verify_provenance(
+                product_id=artwork.artwork_id,
+                metadata_hash=provenance_record.metadata_hash,
+                transaction_signature=provenance_record.transaction_signature,
+            )
+        else:
+            blockchain_verify = await blockchain.verify_artwork(artwork.artwork_id)
+    except Exception:
+        blockchain_verify = {"is_verified": False, "network": settings.BLOCKCHAIN_NETWORK}
     blockchain_tx = None
     if certificate and certificate.blockchain_tx_hash:
         blockchain_tx = {
@@ -52,8 +66,19 @@ async def verify_artwork(artwork_id: str, db: Session = Depends(get_db)):
         ProvenanceEvent.artwork_id == artwork.id
     ).order_by(ProvenanceEvent.sequence_order).all()
 
+    certificate_valid = bool(
+        certificate
+        and certificate.status == "active"
+        and not certificate.is_revoked
+    )
+    provenance_valid = bool(
+        provenance_record
+        and provenance_record.verification_status == "verified"
+    )
+    is_valid = (certificate_valid or provenance_valid) and blockchain_verify.get("is_verified", False)
+
     return VerifyResponse(
-        is_valid=True,
+        is_valid=is_valid,
         artwork_id=artwork.artwork_id,
         title=artwork.title,
         artisan_name=artisan_name,
@@ -66,10 +91,14 @@ async def verify_artwork(artwork_id: str, db: Session = Depends(get_db)):
         certificate_hash=certificate.certificate_hash if certificate else None,
         blockchain_status=artwork.blockchain_status,
         blockchain_network=blockchain_verify.get("network", settings.BLOCKCHAIN_NETWORK),
-        blockchain_txn_hash=certificate.blockchain_tx_hash if certificate else None,
-        issuance_date=certificate.issue_date if certificate else None,
+        blockchain_txn_hash=(
+            provenance_record.transaction_signature if provenance_record else
+            certificate.blockchain_tx_hash if certificate else None
+        ),
+        issuance_date=certificate.issue_date if certificate else provenance_record.verified_at if provenance_record else None,
         current_owner=current_owner_name,
         provenance=[ProvenanceEventRead.model_validate(e) for e in events],
+        message="Authentic KALAA Record" if is_valid else "Verification unavailable",
     )
 
 

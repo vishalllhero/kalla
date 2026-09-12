@@ -265,18 +265,24 @@ async def upload_artwork_image(
         raise HTTPException(status_code=400, detail="Unsupported image type")
     if not file.filename or not os.path.splitext(file.filename)[1]:
         raise HTTPException(status_code=400, detail="Image filename is required")
+    allowed_extensions = {
+        "image/jpeg": {".jpg", ".jpeg"},
+        "image/png": {".png"},
+        "image/webp": {".webp"},
+        "image/gif": {".gif"},
+    }
+    extension = os.path.splitext(file.filename)[1].lower()
+    if extension not in allowed_extensions.get(file.content_type, set()):
+        raise HTTPException(status_code=400, detail="Image extension does not match its MIME type")
 
     if current_user.role.name != "admin" and artwork.artisan_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
 
     storage = LocalStorageService()
-    file_info = storage.save_upload_file(file, subdir="artworks")
-    if file_info["size"] > settings.MAX_UPLOAD_SIZE:
-        try:
-            os.remove(file_info["filepath"])
-        except OSError:
-            pass
-        raise HTTPException(status_code=413, detail="Image is too large")
+    try:
+        file_info = storage.save_upload_file(file, subdir="artworks")
+    except ValueError as error:
+        raise HTTPException(status_code=413, detail=str(error)) from error
 
     is_primary = False
     if not artwork.images:

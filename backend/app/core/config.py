@@ -1,4 +1,5 @@
 import os
+import secrets
 import uuid as _uuid
 from typing import Optional
 
@@ -44,7 +45,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "KALAA"
     APP_VERSION: str = "1.0.0"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    DEBUG: bool = _env_bool("DEBUG", True)
+    DEBUG: bool = _env_bool("DEBUG", False)
 
     # API
     API_V1_STR: str = "/api/v1"
@@ -57,11 +58,13 @@ class Settings(BaseSettings):
     )
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "kalaadev")
-    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "kalaa_secure_password")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "kalaa")
 
     # JWT
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+    SECRET_KEY: str = os.getenv("SECRET_KEY") or (
+        "" if os.getenv("ENVIRONMENT", "development") == "production" else secrets.token_urlsafe(32)
+    )
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = _env_int("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
     REFRESH_TOKEN_EXPIRE_DAYS: int = _env_int("REFRESH_TOKEN_EXPIRE_DAYS", 7)
@@ -104,12 +107,12 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "")
 
     # Demo Credentials
-    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@kalaamarket.com")
-    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "Admin@123")
-    ARTISAN_EMAIL: str = os.getenv("ARTISAN_EMAIL", "artisan1@kalaamarket.com")
-    ARTISAN_PASSWORD: str = os.getenv("ARTISAN_PASSWORD", "Artisan@123")
-    BUYER_EMAIL: str = os.getenv("BUYER_EMAIL", "buyer1@kalaamarket.com")
-    BUYER_PASSWORD: str = os.getenv("BUYER_PASSWORD", "Buyer@123")
+    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "")
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "")
+    ARTISAN_EMAIL: str = os.getenv("ARTISAN_EMAIL", "")
+    ARTISAN_PASSWORD: str = os.getenv("ARTISAN_PASSWORD", "")
+    BUYER_EMAIL: str = os.getenv("BUYER_EMAIL", "")
+    BUYER_PASSWORD: str = os.getenv("BUYER_PASSWORD", "")
 
 
     def is_production(self) -> bool:
@@ -125,6 +128,11 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+if settings.is_production():
+    if not settings.SECRET_KEY:
+        raise RuntimeError("SECRET_KEY must be configured in production")
+    if settings.DATABASE_URL.startswith("sqlite"):
+        raise RuntimeError("A PostgreSQL DATABASE_URL must be configured in production")
 if os.getenv("VERCEL"):
     # Vercel's deployment filesystem is read-only; /tmp is writable but ephemeral.
     settings.LOCAL_STORAGE_PATH = "/tmp/uploads"
