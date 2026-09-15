@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Heart, Menu, Search, ShoppingBag, X } from 'lucide-react'
@@ -19,9 +19,17 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isScrolled, setIsScrolled] = useState(false)
   const navigate = useNavigate()
   const { cartCount, setIsCartOpen } = useShop()
   const { isConnected, klcBalance, connectWallet } = useWeb3()
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 24)
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault()
@@ -31,8 +39,8 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed inset-x-0 top-4 z-50 px-4">
-        <div className="mx-auto max-w-[1440px] rounded-2xl border border-ivory/10 bg-obsidian/75 px-4 backdrop-blur-2xl">
+      <nav className={`fixed inset-x-0 z-50 px-3 transition-all duration-300 sm:px-5 ${isScrolled ? 'top-0' : 'top-3'}`}>
+        <div className={`mx-auto max-w-[1440px] border border-ivory/10 bg-obsidian/80 px-3 backdrop-blur-2xl transition-all duration-300 sm:px-4 ${isScrolled ? 'rounded-none border-x-0 border-t-0' : 'rounded-xl'}`}>
           <div className="flex h-[68px] items-center justify-between gap-6">
             <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-ivory lg:hidden" aria-label="Toggle navigation menu" title="Menu">{isOpen ? <X size={20} /> : <Menu size={20} />}</button>
             <Link to="/" aria-label="KALAA home"><Logo /></Link>
@@ -40,7 +48,7 @@ export const Navbar = () => {
               {links.map(([label, href]) => <Link key={label} to={href} className="text-[10px] font-medium tracking-[0.16em] text-muted transition-colors hover:text-gold">{label}</Link>)}
             </div>
             <div className="flex items-center gap-1 text-ivory">
-              <button className="hidden rounded-full border border-gold/50 px-4 py-2 text-[10px] font-medium tracking-[0.14em] text-gold transition-colors hover:bg-gold hover:text-obsidian md:block" onClick={() => !isConnected ? connectWallet() : navigate('/wallet')} aria-label="Connect wallet">{isConnected ? `${klcBalance} KLC` : 'CONNECT WALLET'}</button>
+              <button className="hidden border border-gold/50 px-4 py-2 text-[10px] font-medium tracking-[0.14em] text-gold transition-colors hover:bg-gold hover:text-obsidian md:block" onClick={() => !isConnected ? connectWallet() : navigate('/wallet')} aria-label="Connect wallet">{isConnected ? `${klcBalance} KLC` : 'CONNECT WALLET'}</button>
               <button className="rounded-full p-2 transition-colors hover:text-gold" onClick={() => setSearchOpen(true)} aria-label="Search KALAA" title="Search"><Search size={18} strokeWidth={1.5} /></button>
               <Link to="/dashboard" className="hidden rounded-full p-2 transition-colors hover:text-gold sm:block" aria-label="Saved artworks" title="Saved artworks"><Heart size={18} strokeWidth={1.5} /></Link>
               <button onClick={() => setIsCartOpen(true)} className="relative rounded-full p-2 transition-colors hover:text-gold" aria-label="Open cart" title="Cart"><ShoppingBag size={18} strokeWidth={1.5} />{cartCount > 0 && <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] text-obsidian">{cartCount}</span>}</button>

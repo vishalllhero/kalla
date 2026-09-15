@@ -11,9 +11,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', ...defaultTheme.fontFamily.sans],
-        serif: ['"Cormorant Garamond"', ...defaultTheme.fontFamily.serif],
-        display: ['"Cormorant Garamond"', ...defaultTheme.fontFamily.serif],
+        sans: ['"Space Grotesk"', ...defaultTheme.fontFamily.sans],
+        serif: ['"Space Grotesk"', ...defaultTheme.fontFamily.sans],
+        display: ['"Space Grotesk"', ...defaultTheme.fontFamily.sans],
+        mono: ['"DM Mono"', ...defaultTheme.fontFamily.mono],
         handwriting: ['"La Belle Aurore"', 'cursive'],
       },
 

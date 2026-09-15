@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,6 +12,8 @@
   body {
     @apply bg-obsidian text-ivory font-sans;
     margin: 0;
+    background-image: linear-gradient(rgba(245, 242, 234, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 242, 234, .025) 1px, transparent 1px);
+    background-size: 64px 64px;
   }
 
   /* Custom Scrollbar for that premium feel */
@@ -28,10 +30,10 @@
 }
 
 @layer components {
-  .eyebrow { @apply flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.2em] text-gold; }
+  .eyebrow { @apply flex items-center gap-3 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gold; }
   .eyebrow::before { content: ''; @apply h-px w-8 bg-gold; }
   .section-shell { @apply mx-auto max-w-[1500px] px-5 py-24 sm:px-10 lg:py-36; }
-  .quiet-button { @apply inline-flex items-center justify-center gap-3 rounded-full border border-ivory/20 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.16em] text-ivory transition-colors hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold; }
+  .quiet-button { @apply inline-flex items-center justify-center gap-3 border border-ivory/20 px-6 py-3 font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-ivory transition-colors hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold; }
 }
 
 @layer utilities {
@@ -43,6 +45,7 @@
   .text-brand-blue, .text-brand-purple { color: #C8A951 !important; }
   .border-brand-blue, .border-brand-purple { border-color: rgba(200, 169, 81, .5) !important; }
   .bg-gradient-to-br { background-image: none !important; background-color: #15171C !important; }
+  .font-mono { font-family: 'DM Mono', ui-monospace, monospace; }
   :focus-visible { outline: 2px solid #D6B85A; outline-offset: 3px; }
 }
 
